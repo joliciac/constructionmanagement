@@ -29,6 +29,11 @@ android {
             )
         }
     }
+    configurations.all {
+        resolutionStrategy {
+            force ("androidx.compose.material3:material3:1.3.1")
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -40,7 +45,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.2"
     }
     packaging {
         resources {
@@ -61,6 +66,20 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.core.splashscreen)
+    implementation (libs.material3)
+    implementation (libs.ui)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.androidx.material3.android)
+
+    // CameraX dependencies for image/video capture
+    implementation (libs.androidx.camera.camera2)
+    implementation (libs.androidx.camera.lifecycle)
+    implementation (libs.androidx.camera.view)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

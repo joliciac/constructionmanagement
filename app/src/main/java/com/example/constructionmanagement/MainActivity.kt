@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
@@ -26,8 +27,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             ConstructionManagementTheme {
                 val navController = rememberNavController()
+                // Determine the current route
+                val currentRoute = navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
+
                 Scaffold(
-                    bottomBar = { BottomNavigationBar(navController)}
+                    bottomBar = {
+                        if (currentRoute.value?.destination?.route !in listOf("splash")) {
+                            BottomNavigationBar(navController)
+                        }
+                    }
                 ) { paddingValues ->
                     NavigationGraph(navController, paddingValues)
                 }
