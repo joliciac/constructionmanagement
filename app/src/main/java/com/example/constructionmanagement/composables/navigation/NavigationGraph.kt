@@ -26,7 +26,7 @@ fun NavigationGraph(navController: NavHostController, paddingValues: PaddingValu
             HomeScreen()
         }
         composable("logs"){
-            LogsScreen(navController = navController)
+            LogsScreen()
         }
         composable("weather"){
             WeatherScreen()
