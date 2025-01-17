@@ -114,6 +114,10 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
 fun LogsTopBar(onAddClick: () -> Unit) {
     TopAppBar(
         title = {
+            Box (
+                modifier = Modifier
+                    .padding(start = 10.dp, bottom = 18.dp)
+            ){
                 Text(
                     text = "Log Entries",
                     fontFamily = FontFamily.Monospace,
@@ -123,13 +127,14 @@ fun LogsTopBar(onAddClick: () -> Unit) {
                     modifier = Modifier
                         .padding(0.dp)
                 )
+            }
              },
         actions = {
             FloatingActionButton(
                 onClick = onAddClick,
                 modifier = Modifier
                     .size(50.dp)
-                    .padding(5.dp)
+                    .padding(bottom = 10.dp, end = 5.dp)
                     ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Entry")
             }
