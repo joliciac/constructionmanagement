@@ -211,7 +211,8 @@ fun LogEntryBottomSheet(
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "Add a New Log Entry",
-            fontFamily = FontFamily.Monospace,
+            fontFamily = FontFamily.Serif,
+            fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -311,6 +312,9 @@ fun LogEntryBottomSheet(
             shape = RoundedCornerShape(0.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF8A9ECB)
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 4.dp
             )
         ) {
             Text("Media Upload")
@@ -334,7 +338,7 @@ fun LogEntryBottomSheet(
                 onClick = onDismiss,
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF8A9ECB),
+                    containerColor = Color(0xFFE3E6EF),
                     contentColor = Color(0xFF445E91)
                 )
             ) {
@@ -345,7 +349,7 @@ fun LogEntryBottomSheet(
                 onClick = onSubmit,
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF8A9ECB),
+                    containerColor = Color(0xFFE3E6EF),
                     contentColor = Color(0xFF445E91)
                 )
             ) {
