@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -100,53 +101,62 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
     }
 
     Scaffold(
-        topBar = { LogsTopBar(onAddClick = { isBottomSheetVisible.value = true }) },
-        floatingActionButton = { BottomLogFloatingActionButton(onAddClick = { isBottomSheetVisible.value = true }) }
+        floatingActionButton = {
+            BottomLogFloatingActionButton(onAddClick = { isBottomSheetVisible.value = true }) }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ScreenHeader(
+                icon = Icons.Default.Build, title = "Log Entries",onIconClick = { isBottomSheetVisible.value = true })
+            Spacer(modifier = Modifier.height(16.dp) )
             PreviousLogs()
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LogsTopBar(onAddClick: () -> Unit) {
-    TopAppBar(
-        title = {
-            Box (
-                modifier = Modifier
-                    .padding(start = 10.dp, bottom = 18.dp)
-            ){
-                Text(
-                    text = "Log Entries",
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 35.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .padding(0.dp)
-                )
-            }
-             },
-        actions = {
-            FloatingActionButton(
-                onClick = onAddClick,
-                modifier = Modifier
-                    .size(50.dp)
-                    .padding(bottom = 10.dp, end = 5.dp)
-                    ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Entry")
-            }
-        },
-        modifier = Modifier
-            .padding(15.dp)
-            .shadow(5.dp, shape = RoundedCornerShape(3.dp)),
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFFE3E6EF)
-        )
-    )
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun LogsTopBar(onAddClick: () -> Unit) {
+//    TopAppBar(
+//        title = {
+//            Box (
+//                modifier = Modifier
+//                    .padding(start = 10.dp, bottom = 18.dp)
+//            ){
+//                Text(
+//                    text = "Log Entries",
+//                    fontFamily = FontFamily.Monospace,
+//                    fontWeight = FontWeight.SemiBold,
+//                    fontSize = 35.sp,
+//                    color = MaterialTheme.colorScheme.onSurface,
+//                    modifier = Modifier
+//                        .padding(0.dp)
+//                )
+//            }
+//             },
+//        actions = {
+//            FloatingActionButton(
+//                onClick = onAddClick,
+//                modifier = Modifier
+//                    .size(50.dp)
+//                    .padding(bottom = 10.dp, end = 5.dp)
+//                    ) {
+//                Icon(Icons.Default.Add, contentDescription = "Add Entry")
+//            }
+//        },
+//        modifier = Modifier
+//            .padding(15.dp)
+//            .shadow(5.dp, shape = RoundedCornerShape(3.dp)),
+//        colors = TopAppBarDefaults.topAppBarColors(
+//            containerColor = Color(0xFFE3E6EF)
+//        )
+//    )
+//}
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
@@ -397,7 +407,7 @@ fun PreviousLogs() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewLogsTopBar() {
-    LogsTopBar(onAddClick = {})
+    ScreenHeader(onIconClick = {}, icon = Icons.Default.Build, title = "Log Entries")
 }
 
 @Preview(showBackground = true)

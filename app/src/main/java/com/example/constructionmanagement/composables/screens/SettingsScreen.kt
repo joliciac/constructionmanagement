@@ -2,7 +2,6 @@ package com.example.constructionmanagement.composables.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,15 +14,12 @@ import androidx.compose.foundation.layout.width
 import com.example.constructionmanagement.R
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -46,7 +42,9 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SettingsHeader()
+            ScreenHeader(
+                icon = Icons.Default.Settings, title = "Settings", onIconClick = {}
+            )
             Spacer(modifier = Modifier.height(32.dp))
             SettingsOptionRow(
                 iconPainter = painterResource(id = R.drawable.notifications_24px),
@@ -73,19 +71,26 @@ fun SettingsScreen(
 }
 
 @Composable
-fun SettingsHeader() {
+fun ScreenHeader(icon: ImageVector, title: String, onIconClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(top = 32.dp)
     ) {
-        Icon(
-            imageVector = Icons.Default.Settings,
-            contentDescription = "Settings Icon",
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
+        IconButton(
+            onClick = onIconClick,
+            modifier = Modifier
+                .size(48.dp)
+                .padding(end = 8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = "$title Icon",
+                modifier = Modifier.size(80.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
         Text(
-            text = "Settings",
+            text = title,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(top = 8.dp)
         )
