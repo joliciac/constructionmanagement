@@ -319,7 +319,7 @@ fun LogEntryBottomSheet(
         ) {
             Text("Media Upload")
             Icon(
-                imageVector = Icons.Default.AddCircle,
+               imageVector = Icons.Default.AddCircle,
                 contentDescription = "MediaPlusSign",
                 modifier = Modifier
                 .padding(start = 5.dp))

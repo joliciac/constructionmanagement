@@ -32,7 +32,18 @@ fun NavigationGraph(navController: NavHostController, paddingValues: PaddingValu
             WeatherScreen()
         }
         composable("settings"){
-            SettingsScreen()
+            SettingsScreen(onThemeClick = {
+                    // Action to toggle theme (light/dark)
+                    println("Theme toggled")
+                },
+                onNotificationClick = {
+                    // Action to manage notification settings
+                    println("Notification settings clicked")
+                },
+                onLanguageChange = {
+                    // Action to change language
+                    println("Language change clicked")
+                })
         }
     }
 }
