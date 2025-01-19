@@ -73,6 +73,8 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.androidx.material3.android)
+    implementation(libs.coil.compose) // Use the latest version
+
 
     // CameraX dependencies for image/video capture
     implementation (libs.androidx.camera.camera2)

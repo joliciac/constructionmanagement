@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -20,9 +21,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Build
@@ -60,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -67,6 +72,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -219,7 +225,10 @@ fun LogEntryBottomSheet(
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())) {
         Text(
             text = "Add a New Log Entry",
             fontFamily = FontFamily.Serif,
@@ -336,12 +345,39 @@ fun LogEntryBottomSheet(
                 .padding(start = 5.dp))
         }
         selectedMediaUri.value?.let { uri ->
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Selected Media: $uri",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp)
+                text = "Selected Media:",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-            //code content to display captured media
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .background(Color.Gray.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (uri.toString().contains("image")) {
+                    // Display Image
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Selected Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else if (uri.toString().contains("video")) {
+                    // Placeholder for Video
+                    Icon(
+                        imageVector = Icons.Default.AccountBox,
+                        contentDescription = "Video Icon",
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Text(text = "Unsupported media type", style = MaterialTheme.typography.bodySmall)
+                }
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
