@@ -15,7 +15,6 @@ import com.example.constructionmanagement.composables.data.WeatherViewModel
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel = WeatherViewModel()) {
     val weather by viewModel.weather
-
     LaunchedEffect(Unit) {
         viewModel.fetchWeather(location = "40.7128,-74.0060") // Replace with dynamic location
     }

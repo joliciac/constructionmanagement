@@ -71,23 +71,35 @@ fun SettingsScreen(
 }
 
 @Composable
-fun ScreenHeader(icon: ImageVector, title: String, onIconClick: () -> Unit) {
+fun ScreenHeader(
+    painter: Painter? = null,
+    icon: ImageVector? = null,
+    title: String,
+    onIconClick: (() -> Unit)? = null) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(top = 32.dp)
     ) {
         IconButton(
-            onClick = onIconClick,
+            onClick = { onIconClick?.invoke() },
             modifier = Modifier
                 .size(48.dp)
                 .padding(end = 8.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = "$title Icon",
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            if (painter != null){
+                Icon(
+                    painter = painter,
+                    contentDescription = "$title Icon",
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            } else if (icon != null){
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "$title Icon",
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.primary )
+            }
         }
         Text(
             text = title,
