@@ -5,6 +5,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -375,19 +376,21 @@ fun PreviousLogs() {
         Text(
             text = "Logs for the last 3 days:",
             style = MaterialTheme.typography.titleLarge,
-            fontFamily = FontFamily.Serif,
+//            fontFamily = FontFamily.Serif,
             modifier = Modifier.padding(bottom = 12.dp)
         )
         Surface(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
+            color = MaterialTheme.colorScheme.primary,
+            border = BorderStroke(width = 2.dp, color = Color.DarkGray)
             // add code that will hold a box for each log
         ) {
             Text(
                 text = "No logs available.",
                 fontFamily = FontFamily.Serif,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+//                fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyLarge
             )
         }
