@@ -27,9 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    isDarkTheme: Boolean,
     onThemeClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onLanguageChange: () -> Unit
@@ -57,7 +57,11 @@ fun SettingsScreen(
                 onClick = onLanguageChange
             )
             SettingsOptionRow(
-                iconPainter = painterResource(id = R.drawable.dark_mode_24px),
+                iconPainter = if (isDarkTheme) {
+                    painterResource(id = R.drawable.dark_mode__filled_24px)
+                } else {
+                     painterResource(id = R.drawable.dark_mode_24px)
+                },
                 title = "Dark Mode",
                 onClick = onThemeClick
             )
@@ -144,6 +148,7 @@ fun SettingsOptionRow(
 @Composable
 fun SettingsScreenPreview() {
     SettingsScreen(
+        isDarkTheme = false,
         onThemeClick = {},
         onNotificationClick = {},
         onLanguageChange = {})

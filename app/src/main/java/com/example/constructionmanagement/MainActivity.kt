@@ -40,7 +40,8 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { paddingValues ->
                     NavigationGraph(
-                        navController, paddingValues,
+                        navController = navController,
+                        paddingValues = paddingValues,
                         onThemeToggle = { isDarkTheme = !isDarkTheme},
                         isDarkTheme = isDarkTheme)
                 }

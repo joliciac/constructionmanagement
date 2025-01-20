@@ -38,6 +38,7 @@ fun NavigationGraph(
         }
         composable("settings"){
             SettingsScreen(
+                isDarkTheme = isDarkTheme,
                 onThemeClick = onThemeToggle,
                 onNotificationClick = {
                     // Action to manage notification settings
