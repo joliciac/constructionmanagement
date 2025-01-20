@@ -17,7 +17,12 @@ import com.example.constructionmanagement.composables.screens.WeatherScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NavigationGraph(navController: NavHostController, paddingValues: PaddingValues) {
+fun NavigationGraph(
+    navController: NavHostController,
+    paddingValues: PaddingValues,
+    onThemeToggle: () -> Unit,
+    isDarkTheme: Boolean
+) {
     NavHost(navController, startDestination = "splash", modifier = Modifier.padding(paddingValues)) {
         composable("splash") {
             SplashScreen(navController = navController)
@@ -32,10 +37,8 @@ fun NavigationGraph(navController: NavHostController, paddingValues: PaddingValu
             WeatherScreen()
         }
         composable("settings"){
-            SettingsScreen(onThemeClick = {
-                    // Action to toggle theme (light/dark)
-                    println("Theme toggled")
-                },
+            SettingsScreen(
+                onThemeClick = onThemeToggle,
                 onNotificationClick = {
                     // Action to manage notification settings
                     println("Notification settings clicked")
