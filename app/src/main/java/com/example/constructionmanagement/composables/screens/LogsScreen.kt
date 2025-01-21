@@ -228,7 +228,8 @@ fun LogEntryBottomSheet(
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .verticalScroll(rememberScrollState())) {
+            .verticalScroll(rememberScrollState())
+    ) {
         Text(
             text = "Add a New Log Entry",
             fontFamily = FontFamily.Serif,
@@ -354,7 +355,8 @@ fun LogEntryBottomSheet(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(400.dp)
+                    .padding(bottom = 10.dp)
                     .background(Color.Gray.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
