@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
 import androidx.compose.runtime.MutableState
@@ -94,7 +96,21 @@ fun HomeScreen() {
                     )
                 }
             }
+            Spacer(modifier = Modifier.padding(20.dp))
+            HomeFloatingActionButton (){
+
+            }
+
         }
+    }
+}
+
+@Composable
+fun HomeFloatingActionButton(onLogClick: () -> Unit){
+    FloatingActionButton(
+        onClick = { }
+    ) {
+        Icon(Icons.Default.Add, contentDescription = "Add Log Entry")
     }
 }
 
