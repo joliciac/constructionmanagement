@@ -82,7 +82,7 @@ fun ScreenHeader(
     onIconClick: (() -> Unit)? = null) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(top = 32.dp)
+        modifier = Modifier.padding(top = 20.dp)
     ) {
         IconButton(
             onClick = { onIconClick?.invoke() },
