@@ -420,7 +420,7 @@ fun PreviousLogs() {
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
-            color = MaterialTheme.colorScheme.primary,
+            color = Color(0xFFE3E2E6),
             border = BorderStroke(width = 2.dp, color = Color.DarkGray)
             // add code that will hold a box for each log
         ) {
