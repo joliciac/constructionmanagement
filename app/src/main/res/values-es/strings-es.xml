@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ConstructionManagement</string>
+
+    <!-- Home Screen-->
+
+    <!-- Log Screen-->
+
+    <!-- Weather Screen-->
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Configuraciones</string>
+    <string name="notification_opt">Notificaciones</string>
+    <string name="change_language_opt">Cambiar Idioma</string>
+    <string name="dark_mode_theme">Modo Oscuro</string>
+    <string name="select_language">Seleccionar Idioma</string>
+
+    <!-- Generics -->
+    <string name="cancel">Cancelar</string>
+</resources>

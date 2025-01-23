@@ -1,3 +1,21 @@
 <resources>
+    <!-- Main Activity-->
     <string name="app_name">ConstructionManagement</string>
+
+    <!-- Home Screen-->
+
+    <!-- Log Screen-->
+
+    <!-- Weather Screen-->
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="notification_opt">Notifications</string>
+    <string name="change_language_opt">Change Language</string>
+    <string name="dark_mode_theme">Dark Mode</string>
+    <string name="select_language">Select Language</string>
+
+    <!-- Generics -->
+    <string name="cancel">Cancel</string>
+
 </resources>

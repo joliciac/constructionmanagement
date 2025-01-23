@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -43,17 +44,17 @@ fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ScreenHeader(
-                icon = Icons.Default.Settings, title = "Settings", onIconClick = {}
+                icon = Icons.Default.Settings, title = stringResource(R.string.settings_title), onIconClick = {}
             )
             Spacer(modifier = Modifier.height(32.dp))
             SettingsOptionRow(
                 iconPainter = painterResource(id = R.drawable.notifications_24px),
-                title = "Notifications",
+                title = stringResource(id = R.string.notification_opt),
                 onClick = onNotificationClick
             )
             SettingsOptionRow(
                 iconPainter = painterResource(id = R.drawable.globe_asia_24px),
-                title = "Change Language",
+                title = stringResource(id = R.string.change_language_opt),
                 onClick = onLanguageChange
             )
             SettingsOptionRow(
@@ -62,7 +63,7 @@ fun SettingsScreen(
                 } else {
                      painterResource(id = R.drawable.dark_mode_24px)
                 },
-                title = "Dark Mode",
+                title = stringResource(id = R.string.dark_mode_theme),
                 onClick = onThemeClick
             )
 //            SettingsOptionRow(
