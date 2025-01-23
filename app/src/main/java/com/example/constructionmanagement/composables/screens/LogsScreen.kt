@@ -421,7 +421,7 @@ fun PreviousLogs() {
             modifier = Modifier
                 .fillMaxSize(),
             color = Color(0xFFE3E2E6),
-            border = BorderStroke(width = 2.dp, color = Color.DarkGray)
+            border = BorderStroke(width = 1.dp, color = Color.DarkGray)
             // add code that will hold a box for each log
         ) {
             Text(

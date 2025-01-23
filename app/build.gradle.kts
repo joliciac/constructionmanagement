@@ -81,6 +81,10 @@ dependencies {
     implementation (libs.androidx.camera.lifecycle)
     implementation (libs.androidx.camera.view)
 
+    //DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
