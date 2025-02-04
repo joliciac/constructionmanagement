@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.composables.data
+package com.example.constructionmanagement.data
 
 import retrofit2.http.GET
 import retrofit2.http.Query

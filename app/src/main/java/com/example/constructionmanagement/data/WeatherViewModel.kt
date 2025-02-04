@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.composables.data
+package com.example.constructionmanagement.data
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

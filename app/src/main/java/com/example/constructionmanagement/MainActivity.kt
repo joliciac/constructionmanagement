@@ -14,8 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.example.constructionmanagement.composables.navigation.BottomNavigationBar
-import com.example.constructionmanagement.composables.navigation.NavigationGraph
+import com.example.constructionmanagement.navigation.BottomNavigationBar
+import com.example.constructionmanagement.navigation.NavigationGraph
 import com.example.constructionmanagement.ui.theme.ConstructionManagementTheme
 
 class MainActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.composables.navigation
+package com.example.constructionmanagement.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi

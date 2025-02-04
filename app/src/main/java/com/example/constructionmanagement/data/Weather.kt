@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.composables.data
+package com.example.constructionmanagement.data
 
 data class Weather(
     val temperature: Double,

@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.composables.navigation
+package com.example.constructionmanagement.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build

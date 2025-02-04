@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.composables.data
+package com.example.constructionmanagement.data
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit

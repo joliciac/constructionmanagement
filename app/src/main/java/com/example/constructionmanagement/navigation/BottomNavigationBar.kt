@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.composables.navigation
+package com.example.constructionmanagement.navigation
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
