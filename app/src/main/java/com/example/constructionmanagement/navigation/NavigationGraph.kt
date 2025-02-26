@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.constructionmanagement.composables.screens.HomeScreen
+import com.example.constructionmanagement.composables.screens.LoginScreen
 import com.example.constructionmanagement.composables.screens.LogsScreen
 import com.example.constructionmanagement.composables.screens.SettingsScreen
 import com.example.constructionmanagement.composables.screens.SplashScreen
@@ -26,6 +27,12 @@ fun NavigationGraph(
     NavHost(navController, startDestination = "splash", modifier = Modifier.padding(paddingValues)) {
         composable("splash") {
             SplashScreen(navController = navController)
+        }
+        composable("login") {
+            LoginScreen(
+                onLoginSuccess = { navController.navigate("home") },
+                onNavigateToSignup = { navController.navigate("signup") }
+            )
         }
         composable("home") {
             HomeScreen()

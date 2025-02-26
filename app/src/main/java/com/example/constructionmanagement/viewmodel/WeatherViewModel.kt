@@ -1,9 +1,11 @@
-package com.example.constructionmanagement.data
+package com.example.constructionmanagement.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.constructionmanagement.data.RetrofitInstance
+import com.example.constructionmanagement.data.Weather
 import kotlinx.coroutines.launch
 
 class WeatherViewModel : ViewModel() {
