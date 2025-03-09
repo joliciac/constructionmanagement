@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.constructionmanagement.ui.theme.PurpleGrey80
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @Composable
@@ -39,25 +40,19 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         animationStart = true
         delay(4000L)
-        navController.navigate("home") {
-            popUpTo("splash") {
-                inclusive = true
-            }
+
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            navController.navigate("home") {
+                popUpTo("splash") { inclusive = true }
+        }
+    } else {
+        navController.navigate("login"){
+            popUpTo("splash") {inclusive = true}
         }
     }
+    }
     Splash(alpha = alphaAnim.value)
-//    Box(
-//        modifier = Modifier.fillMaxSize(),
-//        contentAlignment = Alignment.Center,
-//    ) {
-//        BasicText(
-//            text = "Your Management System",
-//            style = MaterialTheme.typography.titleMedium.copy(
-//                fontWeight = FontWeight.Bold,
-//                fontSize = 30.sp
-//            )
-//        )
-//    }
 }
 
 @Composable

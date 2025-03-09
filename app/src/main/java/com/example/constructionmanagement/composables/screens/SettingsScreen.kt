@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
@@ -37,7 +38,8 @@ fun SettingsScreen(
     isDarkTheme: Boolean,
     onThemeClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onLanguageChange: (String) -> Unit
+    onLanguageChange: (String) -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
 
@@ -72,11 +74,11 @@ fun SettingsScreen(
                 title = stringResource(id = R.string.dark_mode_theme),
                 onClick = onThemeClick
             )
-//            SettingsOptionRow(
-//                icon = Icons.Default.Info,
-//                title = "About",
-//                onClick = { /* Navigate to About Screen */ }
-//            )
+            SettingsOptionRow(
+                iconPainter = painterResource(id = R.drawable.logout_24px),
+                title = stringResource(id = R.string.logout),
+                onClick = onLogoutClick
+            )
 
             if (showLanguageDialog){
                 LangSelectionDialogue(
@@ -200,5 +202,6 @@ fun SettingsScreenPreview() {
         isDarkTheme = false,
         onThemeClick = {},
         onNotificationClick = {},
-        onLanguageChange = {})
+        onLanguageChange = {},
+        onLogoutClick = {})
 }

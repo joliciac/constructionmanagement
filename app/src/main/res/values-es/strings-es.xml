@@ -14,6 +14,7 @@
     <string name="change_language_opt">Cambiar Idioma</string>
     <string name="dark_mode_theme">Modo Oscuro</string>
     <string name="select_language">Seleccionar Idioma</string>
+    <string name="logout">Cerrar Session</string>
 
     <!-- Generics -->
     <string name="cancel">Cancelar</string>

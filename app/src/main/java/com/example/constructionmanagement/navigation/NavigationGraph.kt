@@ -15,6 +15,7 @@ import com.example.constructionmanagement.composables.screens.LogsScreen
 import com.example.constructionmanagement.composables.screens.SettingsScreen
 import com.example.constructionmanagement.composables.screens.SplashScreen
 import com.example.constructionmanagement.composables.screens.WeatherScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -54,7 +55,14 @@ fun NavigationGraph(
                 onLanguageChange = {
                     // Action to change language
                     println("Language change clicked")
-                })
+                },
+                onLogoutClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
