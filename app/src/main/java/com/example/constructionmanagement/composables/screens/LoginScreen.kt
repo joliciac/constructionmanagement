@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -22,15 +23,20 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignup: () -> Unit) {
     val loginViewModel: LoginViewModel = viewModel()
     val context = LocalContext.current
 
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 160.dp, start = 26.dp),
+    ) {
+        Text("Login",
+            fontSize = 38.sp)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+            .padding(start = 26.dp, top = 30.dp),
+        verticalArrangement = Arrangement.Center,
     ) {
-        Text("Login", fontSize = 24.sp)
-        Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
