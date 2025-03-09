@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.constructionmanagement.viewmodel.LoginViewModel
@@ -22,7 +23,9 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignup: () -> Unit) {
     val context = LocalContext.current
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text("Login", fontSize = 24.sp)
@@ -65,4 +68,12 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignup: () -> Unit) {
             Text("Don't have an account? Sign up")
         }
     }
+}
+
+@Preview
+@Composable
+fun LoginPreview(){
+    LoginScreen(
+        onLoginSuccess = {}
+    ) {}
 }
