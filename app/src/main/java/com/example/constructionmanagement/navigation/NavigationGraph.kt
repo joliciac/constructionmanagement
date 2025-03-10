@@ -13,6 +13,7 @@ import com.example.constructionmanagement.composables.screens.HomeScreen
 import com.example.constructionmanagement.composables.screens.LoginScreen
 import com.example.constructionmanagement.composables.screens.LogsScreen
 import com.example.constructionmanagement.composables.screens.SettingsScreen
+import com.example.constructionmanagement.composables.screens.SignupScreen
 import com.example.constructionmanagement.composables.screens.SplashScreen
 import com.example.constructionmanagement.composables.screens.WeatherScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -34,6 +35,12 @@ fun NavigationGraph(
                 onLoginSuccess = { navController.navigate("home") },
                 onNavigateToSignup = { navController.navigate("signup") }
             )
+        }
+        composable("signup") {
+            SignupScreen(
+                onSignupSuccess = {navController.navigate("login")},
+                onNavigateToLogin = {navController.navigate("login")}
+                )
         }
         composable("home") {
             HomeScreen()
