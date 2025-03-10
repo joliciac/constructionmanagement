@@ -23,8 +23,8 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var roles = listOf("Worker", "Admin")
-    var selectedRole by remember { mutableStateOf<String?>(null) }
+    val roles = listOf("Worker", "Admin")
+    var selectedRole by remember { mutableStateOf(roles[0]) }
 
     Scaffold() { paddingValues ->
         Column(
@@ -70,22 +70,23 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
 //                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(25.dp))
+
+                Text("Select your role: ",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Absolute.Left) {
                     roles.forEach{ role ->
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(3.dp)
                         ) {
                             RadioButton(
                                 selected = selectedRole == role,
                                 onClick = { selectedRole = role}
                             )
-                            Text(
-                                text = role,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(start = 4.dp)
-                            )
+                            Text(role)
                         }
                     }
                 }
