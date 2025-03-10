@@ -23,55 +23,60 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignup: () -> Unit) {
     val loginViewModel: LoginViewModel = viewModel()
     val context = LocalContext.current
 
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 160.dp, start = 26.dp),
-    ) {
-        Text("Login",
-            fontSize = 38.sp)
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 26.dp, top = 30.dp),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+    Scaffold() { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(top = 90.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Login",
+                fontSize = 38.sp,
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize(0.8f)
+                .padding(25.dp),
+            verticalArrangement = Arrangement.Bottom,
+        ) {
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
+                modifier = Modifier.padding(bottom = 15.dp)
+            )
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            isLoading = true
-            loginViewModel.login(email, password, context) { isSuccess ->
-                isLoading = false
-                if (isSuccess) {
-                    onLoginSuccess()
+            Button(onClick = {
+                isLoading = true
+                loginViewModel.login(email, password, context) { isSuccess ->
+                    isLoading = false
+                    if (isSuccess) {
+                        onLoginSuccess()
+                    }
                 }
+            }) {
+                if (isLoading) CircularProgressIndicator(color = Color.White) else Text("Login")
             }
-        }) {
-            if (isLoading) CircularProgressIndicator(color = Color.White) else Text("Login")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = { loginViewModel.showForgotPasswordDialog() }) {
-            Text("Forgot Password?")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        TextButton(onClick = onNavigateToSignup) {
-            Text("Don't have an account? Sign up")
+            TextButton(onClick = { loginViewModel.showForgotPasswordDialog() }) {
+                Text("Forgot Password?")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(onClick = onNavigateToSignup) {
+                Text("Don't have an account? Sign up")
+            }
         }
     }
 }

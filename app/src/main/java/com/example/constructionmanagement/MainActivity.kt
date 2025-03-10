@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     bottomBar = {
-                        if (currentRoute.value?.destination?.route !in listOf("splash", "login")) {
+                        if (currentRoute.value?.destination?.route !in listOf("splash", "login", "signup")) {
                             BottomNavigationBar(navController)
                         }
                     }
