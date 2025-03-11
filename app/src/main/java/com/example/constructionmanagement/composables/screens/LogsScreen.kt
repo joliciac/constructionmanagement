@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +35,8 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
@@ -59,6 +63,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,13 +77,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.constructionmanagement.data.LogEntry
+import com.example.constructionmanagement.viewmodel.LogsScreenViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
+fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, viewModel: LogsScreenViewModel = viewModel()) {
     val isBottomSheetVisible = isBottomSheetVisibleOverride ?: remember { mutableStateOf(false) }
     val date = remember { mutableStateOf("") }
     val time = remember { mutableStateOf("") }
@@ -86,6 +94,9 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
     val description = remember { mutableStateOf("") }
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val context = LocalContext.current
+    val logs by rememberUpdatedState(viewModel.logs)
+
 
     if (isBottomSheetVisible.value) {
         ModalBottomSheet(
@@ -100,7 +111,26 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
                 selectedMediaUri = selectedMediaUri,
                 onDismiss = { isBottomSheetVisible.value = false },
                 onSubmit = {
-                    // Handle log submission
+                    val logEntry = LogEntry(
+                        date = date.value,
+                        time = time.value,
+                        area = selectedArea.value,
+                        description = description.value,
+                        mediaUri = selectedMediaUri.value?.toString()
+                    )
+                    viewModel.submitLog(logEntry){ success ->
+                        if (success) {
+                            Toast.makeText(context, "Log submitted!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Submission failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    date.value = ""
+                    time.value = ""
+                    selectedArea.value = ""
+                    description.value = ""
+                    selectedMediaUri.value = null
+
                     isBottomSheetVisible.value = false
                 }
             )
@@ -121,49 +151,11 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
             ScreenHeader(
                 icon = Icons.Default.Build, title = "Log Entries",onIconClick = { isBottomSheetVisible.value = true })
             Spacer(modifier = Modifier.height(16.dp) )
-            PreviousLogs()
+            PreviousLogs(logs = logs)
         }
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun LogsTopBar(onAddClick: () -> Unit) {
-//    TopAppBar(
-//        title = {
-//            Box (
-//                modifier = Modifier
-//                    .padding(start = 10.dp, bottom = 18.dp)
-//            ){
-//                Text(
-//                    text = "Log Entries",
-//                    fontFamily = FontFamily.Monospace,
-//                    fontWeight = FontWeight.SemiBold,
-//                    fontSize = 35.sp,
-//                    color = MaterialTheme.colorScheme.onSurface,
-//                    modifier = Modifier
-//                        .padding(0.dp)
-//                )
-//            }
-//             },
-//        actions = {
-//            FloatingActionButton(
-//                onClick = onAddClick,
-//                modifier = Modifier
-//                    .size(50.dp)
-//                    .padding(bottom = 10.dp, end = 5.dp)
-//                    ) {
-//                Icon(Icons.Default.Add, contentDescription = "Add Entry")
-//            }
-//        },
-//        modifier = Modifier
-//            .padding(15.dp)
-//            .shadow(5.dp, shape = RoundedCornerShape(3.dp)),
-//        colors = TopAppBarDefaults.topAppBarColors(
-//            containerColor = Color(0xFFE3E6EF)
-//        )
-//    )
-//}
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
@@ -409,7 +401,7 @@ fun LogEntryBottomSheet(
 }
 
 @Composable
-fun PreviousLogs() {
+fun PreviousLogs(logs: List<LogEntry>) {
     Column(modifier = Modifier.padding(10.dp)) {
         Text(
             text = "Logs for the last 3 days:",
@@ -424,13 +416,42 @@ fun PreviousLogs() {
             border = BorderStroke(width = 1.dp, color = Color.DarkGray)
             // add code that will hold a box for each log
         ) {
-            Text(
-                text = "No logs available.",
-                fontFamily = FontFamily.Serif,
-                fontSize = 20.sp,
-//                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            if (logs.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No logs available.",
+                        fontFamily = FontFamily.Serif,
+                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxSize()
+                ) {
+                    items(logs) { log ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text("Date: ${log.date}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Time: ${log.time}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Area: ${log.area}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Description: ${log.description}", style = MaterialTheme.typography.bodyMedium)
+                                log.mediaUri?.let {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text("Media: $it", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     }
@@ -451,11 +472,13 @@ fun PreviewLogsTopBar() {
     ScreenHeader(onIconClick = {}, icon = Icons.Default.Build, title = "Log Entries")
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewLogList() {
-    PreviousLogs()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewLogList() {
+//    PreviousLogs(
+//        logs =
+//    )
+//}
 
 @Preview(showBackground = true, name = "Log Entry Bottom Sheet Preview")
 @Composable
