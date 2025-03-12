@@ -16,7 +16,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.constructionmanagement.viewmodel.LoginViewModel
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignup: () -> Unit) {
+fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -59,10 +59,10 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignup: () -> Unit) {
 
             Button(onClick = {
                 isLoading = true
-                loginViewModel.login(email, password, context) { isSuccess ->
+                loginViewModel.login(email, password, context) { isSuccess, role ->
                     isLoading = false
-                    if (isSuccess) {
-                        onLoginSuccess()
+                    if (isSuccess && role != null) {
+                        onLoginSuccess(role)
                     }
                 }
             }) {
