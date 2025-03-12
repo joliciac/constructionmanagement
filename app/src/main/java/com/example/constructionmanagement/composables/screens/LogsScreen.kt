@@ -8,84 +8,53 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.example.constructionmanagement.data.LogEntry
+import com.example.constructionmanagement.viewmodel.LogsScreenViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
+fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, viewModel: LogsScreenViewModel = viewModel()) {
     val isBottomSheetVisible = isBottomSheetVisibleOverride ?: remember { mutableStateOf(false) }
+    val title = remember { mutableStateOf("") }
     val date = remember { mutableStateOf("") }
     val time = remember { mutableStateOf("") }
     val selectedArea = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val context = LocalContext.current
+    val logs by rememberUpdatedState(viewModel.logs)
+
 
     if (isBottomSheetVisible.value) {
         ModalBottomSheet(
@@ -93,6 +62,7 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
             sheetState = sheetState
         ) {
             LogEntryBottomSheet(
+                title = title,
                 date = date,
                 time = time,
                 selectedArea = selectedArea,
@@ -100,7 +70,28 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
                 selectedMediaUri = selectedMediaUri,
                 onDismiss = { isBottomSheetVisible.value = false },
                 onSubmit = {
-                    // Handle log submission
+                    val logEntry = LogEntry(
+                        title = title.value,
+                        date = date.value,
+                        time = time.value,
+                        area = selectedArea.value,
+                        description = description.value,
+                        mediaUri = selectedMediaUri.value?.toString()
+                    )
+                    viewModel.submitLog(logEntry){ success ->
+                        if (success) {
+                            Toast.makeText(context, "Log submitted!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Submission failed", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    title.value = ""
+                    date.value = ""
+                    time.value = ""
+                    selectedArea.value = ""
+                    description.value = ""
+                    selectedMediaUri.value = null
+
                     isBottomSheetVisible.value = false
                 }
             )
@@ -121,49 +112,11 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null) {
             ScreenHeader(
                 icon = Icons.Default.Build, title = "Log Entries",onIconClick = { isBottomSheetVisible.value = true })
             Spacer(modifier = Modifier.height(16.dp) )
-            PreviousLogs()
+            PreviousLogs(logs = logs)
         }
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun LogsTopBar(onAddClick: () -> Unit) {
-//    TopAppBar(
-//        title = {
-//            Box (
-//                modifier = Modifier
-//                    .padding(start = 10.dp, bottom = 18.dp)
-//            ){
-//                Text(
-//                    text = "Log Entries",
-//                    fontFamily = FontFamily.Monospace,
-//                    fontWeight = FontWeight.SemiBold,
-//                    fontSize = 35.sp,
-//                    color = MaterialTheme.colorScheme.onSurface,
-//                    modifier = Modifier
-//                        .padding(0.dp)
-//                )
-//            }
-//             },
-//        actions = {
-//            FloatingActionButton(
-//                onClick = onAddClick,
-//                modifier = Modifier
-//                    .size(50.dp)
-//                    .padding(bottom = 10.dp, end = 5.dp)
-//                    ) {
-//                Icon(Icons.Default.Add, contentDescription = "Add Entry")
-//            }
-//        },
-//        modifier = Modifier
-//            .padding(15.dp)
-//            .shadow(5.dp, shape = RoundedCornerShape(3.dp)),
-//        colors = TopAppBarDefaults.topAppBarColors(
-//            containerColor = Color(0xFFE3E6EF)
-//        )
-//    )
-//}
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
@@ -200,9 +153,37 @@ fun DatePickerModalInput(
     }
 }
 
+// thinking to implement an actual time picker
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun TimePicker(
+//    onConfirmTime: () -> Unit,
+//    onDismissTime: () -> Unit
+//){
+//    val currentTime = Calendar.getInstance()
+//
+//    val timePickerState = rememberTimePickerState(
+//        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+//        initialMinute = currentTime.get(Calendar.MINUTE),
+//        is24Hour = true,
+//    )
+//    Column {
+//        TimeInput(
+//            state = timePickerState,
+//        )
+//        Button(onClick = onDismissTime) {
+//            Text("Dismiss picker")
+//        }
+//        Button(onClick = onConfirmTime) {
+//            Text("Confirm selection")
+//        }
+//    }
+//}
+
 // Bottom Sheet Code
 @Composable
 fun LogEntryBottomSheet(
+    title: MutableState<String>,
     date: MutableState<String>,
     time: MutableState<String>,
     selectedArea: MutableState<String>,
@@ -237,6 +218,14 @@ fun LogEntryBottomSheet(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+        TextField(
+            value = title.value,
+            onValueChange = { title.value = it},
+            label = { Text("Title") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(focusedContainerColor = Color(0xFFF9E3D3))
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         TextButton(
             onClick = { showDatePicker.value = true },
             modifier = Modifier
@@ -409,10 +398,10 @@ fun LogEntryBottomSheet(
 }
 
 @Composable
-fun PreviousLogs() {
-    Column(modifier = Modifier.padding(10.dp)) {
+fun PreviousLogs(logs: List<LogEntry>) {
+    Column(modifier = Modifier.padding(5.dp)) {
         Text(
-            text = "Logs for the last 3 days:",
+            text = "Previous Log Entries:",
             style = MaterialTheme.typography.titleLarge,
 //            fontFamily = FontFamily.Serif,
             modifier = Modifier.padding(bottom = 12.dp)
@@ -422,15 +411,43 @@ fun PreviousLogs() {
                 .fillMaxSize(),
             color = Color(0xFFE3E2E6),
             border = BorderStroke(width = 1.dp, color = Color.DarkGray)
-            // add code that will hold a box for each log
         ) {
-            Text(
-                text = "No logs available.",
-                fontFamily = FontFamily.Serif,
-                fontSize = 20.sp,
-//                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            if (logs.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "No logs available.",
+                        fontFamily = FontFamily.Serif,
+                        fontSize = 20.sp,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxSize()
+                ) {
+                    items(logs) { log ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text("Title: ${log.title}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Date: ${log.date}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Area: ${log.area}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Description: ${log.description}", style = MaterialTheme.typography.bodyMedium)
+//                                log.mediaUri?.let {
+//                                    Spacer(modifier = Modifier.height(4.dp))
+//                                    Text("Media: $it", style = MaterialTheme.typography.bodySmall)
+//                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     }
@@ -451,15 +468,18 @@ fun PreviewLogsTopBar() {
     ScreenHeader(onIconClick = {}, icon = Icons.Default.Build, title = "Log Entries")
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewLogList() {
-    PreviousLogs()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewLogList() {
+//    PreviousLogs(
+//        logs =
+//    )
+//}
 
 @Preview(showBackground = true, name = "Log Entry Bottom Sheet Preview")
 @Composable
 fun LogEntryBottomSheetPreview() {
+    val title = remember { mutableStateOf("Cementing") }
     val date = remember { mutableStateOf("16/01/2025") }
     val time = remember { mutableStateOf("10:00 AM") }
     val selectedArea = remember { mutableStateOf("") }
@@ -467,6 +487,7 @@ fun LogEntryBottomSheetPreview() {
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
 
     LogEntryBottomSheet(
+        title = title,
         date = date,
         time = time,
         selectedArea = selectedArea,
