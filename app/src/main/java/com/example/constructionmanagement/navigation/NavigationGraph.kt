@@ -32,8 +32,15 @@ fun NavigationGraph(
         }
         composable("login") {
             LoginScreen(
-                onLoginSuccess = { navController.navigate("home") },
-                onNavigateToSignup = { navController.navigate("signup") }
+                onLoginSuccess = { role ->
+                    if (role == "admin") {
+                        navController.navigate("home")
+                    } else {
+                        navController.navigate("logs")
+                        }
+                    },
+                onNavigateToSignup = {
+                    navController.navigate("signup") }
             )
         }
         composable("signup") {
