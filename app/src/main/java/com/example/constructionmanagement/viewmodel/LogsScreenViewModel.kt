@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import com.example.constructionmanagement.data.LogEntry
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -16,21 +17,45 @@ class LogsScreenViewModel: ViewModel() {
     val logs: SnapshotStateList<LogEntry> get() = _logs
 
 
-    private val database = FirebaseDatabase.getInstance().reference.child("logs")
+    private val database = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("logs")
+    private val userRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
+    private val auth = FirebaseAuth.getInstance()
 
     init {
         fetchLogs()
     }
 
     private fun fetchLogs() {
-        database.addValueEventListener(object : ValueEventListener {
+        val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
+
+        userRef.child(uid).child("role").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val role = snapshot.getValue(String::class.java)
+                if (role == "admin") {
+                    fetchAllLogs()
+                } else {
+                    fetchUserLogs(uid)
+                }
+                Log.d("LogsViewModel", "Logs fetched: ${_logs.size} entries")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("LogsViewModel", "Failed to fetch user role", error.toException())
+            }
+        })
+    }
+
+    private fun fetchUserLogs(uid: String) {
+        val userLogsRef = database.child(uid)
+        userLogsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 _logs.clear()
                 for (logSnapshot in snapshot.children) {
                     val log = logSnapshot.getValue(LogEntry::class.java)
-                    log?.let { _logs.add(it) }
+                    log?.let { _logs.add(it)}
                 }
-                Log.d("LogsViewModel", "Logs fetched: ${_logs.size} entries")
+                Log.d("LogsViewModel", "User logs fetched: ${_logs.size} entries")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -39,9 +64,31 @@ class LogsScreenViewModel: ViewModel() {
         })
     }
 
+    private fun fetchAllLogs() {
+        database.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+            _logs.clear()
+                for (userSnapshot in snapshot.children) {
+                    for (logSnapshot in userSnapshot.children){
+                        val log = logSnapshot.getValue(LogEntry::class.java)
+                        log?.let { _logs.add(it) }
+                    }
+                }
+                Log.d("LogsViewModel", "All logs fetched: ${_logs.size} entries")
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("LogsViewModel", "Failed to fetch all logs", error.toException())
+
+            }
+        })
+    }
+
     fun submitLog(log: LogEntry, onResult: (Boolean) -> Unit) {
-        val logId = database.push().key ?: UUID.randomUUID().toString()
-        database.child(logId).setValue(log)
+        val currentUser = auth.currentUser ?: return
+        val uid = auth.currentUser?.uid ?: return
+        val logId = database.child(uid).push().key ?: UUID.randomUUID().toString()
+
+        database.child(uid).child(logId).setValue(log)
             .addOnSuccessListener {
                 onResult(true)
             }

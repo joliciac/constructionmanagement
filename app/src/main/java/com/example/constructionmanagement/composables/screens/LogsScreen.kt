@@ -88,6 +88,7 @@ import java.util.Locale
 @Composable
 fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, viewModel: LogsScreenViewModel = viewModel()) {
     val isBottomSheetVisible = isBottomSheetVisibleOverride ?: remember { mutableStateOf(false) }
+    val title = remember { mutableStateOf("") }
     val date = remember { mutableStateOf("") }
     val time = remember { mutableStateOf("") }
     val selectedArea = remember { mutableStateOf("") }
@@ -104,6 +105,7 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
             sheetState = sheetState
         ) {
             LogEntryBottomSheet(
+                title = title,
                 date = date,
                 time = time,
                 selectedArea = selectedArea,
@@ -112,6 +114,7 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
                 onDismiss = { isBottomSheetVisible.value = false },
                 onSubmit = {
                     val logEntry = LogEntry(
+                        title = title.value,
                         date = date.value,
                         time = time.value,
                         area = selectedArea.value,
@@ -125,6 +128,7 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
                             Toast.makeText(context, "Submission failed", Toast.LENGTH_SHORT).show()
                         }
                     }
+                    title.value = ""
                     date.value = ""
                     time.value = ""
                     selectedArea.value = ""
@@ -195,6 +199,7 @@ fun DatePickerModalInput(
 // Bottom Sheet Code
 @Composable
 fun LogEntryBottomSheet(
+    title: MutableState<String>,
     date: MutableState<String>,
     time: MutableState<String>,
     selectedArea: MutableState<String>,
@@ -229,6 +234,14 @@ fun LogEntryBottomSheet(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+        TextField(
+            value = title.value,
+            onValueChange = { title.value = it},
+            label = { Text("Title") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(focusedContainerColor = Color(0xFFF9E3D3))
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         TextButton(
             onClick = { showDatePicker.value = true },
             modifier = Modifier
@@ -402,9 +415,9 @@ fun LogEntryBottomSheet(
 
 @Composable
 fun PreviousLogs(logs: List<LogEntry>) {
-    Column(modifier = Modifier.padding(10.dp)) {
+    Column(modifier = Modifier.padding(5.dp)) {
         Text(
-            text = "Logs for the last 3 days:",
+            text = "Previous Log Entries:",
             style = MaterialTheme.typography.titleLarge,
 //            fontFamily = FontFamily.Serif,
             modifier = Modifier.padding(bottom = 12.dp)
@@ -414,7 +427,6 @@ fun PreviousLogs(logs: List<LogEntry>) {
                 .fillMaxSize(),
             color = Color(0xFFE3E2E6),
             border = BorderStroke(width = 1.dp, color = Color.DarkGray)
-            // add code that will hold a box for each log
         ) {
             if (logs.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -439,14 +451,14 @@ fun PreviousLogs(logs: List<LogEntry>) {
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
+                                Text("Title: ${log.title}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Date: ${log.date}", style = MaterialTheme.typography.bodyMedium)
-                                Text("Time: ${log.time}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Area: ${log.area}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Description: ${log.description}", style = MaterialTheme.typography.bodyMedium)
-                                log.mediaUri?.let {
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text("Media: $it", style = MaterialTheme.typography.bodySmall)
-                                }
+//                                log.mediaUri?.let {
+//                                    Spacer(modifier = Modifier.height(4.dp))
+//                                    Text("Media: $it", style = MaterialTheme.typography.bodySmall)
+//                                }
                             }
                         }
                     }
@@ -483,6 +495,7 @@ fun PreviewLogsTopBar() {
 @Preview(showBackground = true, name = "Log Entry Bottom Sheet Preview")
 @Composable
 fun LogEntryBottomSheetPreview() {
+    val title = remember { mutableStateOf("Cementing") }
     val date = remember { mutableStateOf("16/01/2025") }
     val time = remember { mutableStateOf("10:00 AM") }
     val selectedArea = remember { mutableStateOf("") }
@@ -490,6 +503,7 @@ fun LogEntryBottomSheetPreview() {
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
 
     LogEntryBottomSheet(
+        title = title,
         date = date,
         time = time,
         selectedArea = selectedArea,
