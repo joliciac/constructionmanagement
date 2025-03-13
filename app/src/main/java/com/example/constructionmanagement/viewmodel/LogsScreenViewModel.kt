@@ -17,9 +17,10 @@ class LogsScreenViewModel: ViewModel() {
     val logs: SnapshotStateList<LogEntry> get() = _logs
 
 
-    private val database = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("logs")
+    private val logsDatabase = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("logs")
     private val userRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
     private val auth = FirebaseAuth.getInstance()
+    private var userRole: String = ""
 
     init {
         fetchLogs()
@@ -31,7 +32,8 @@ class LogsScreenViewModel: ViewModel() {
 
         userRef.child(uid).child("role").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val role = snapshot.getValue(String::class.java)
+                val role = snapshot.getValue(String::class.java) ?: "Worker"
+                userRole = role
                 if (role == "admin") {
                     fetchAllLogs()
                 } else {
@@ -47,7 +49,7 @@ class LogsScreenViewModel: ViewModel() {
     }
 
     private fun fetchUserLogs(uid: String) {
-        val userLogsRef = database.child(uid)
+        val userLogsRef = logsDatabase.child(uid)
         userLogsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 _logs.clear()
@@ -65,7 +67,7 @@ class LogsScreenViewModel: ViewModel() {
     }
 
     private fun fetchAllLogs() {
-        database.addValueEventListener(object : ValueEventListener{
+        logsDatabase.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
             _logs.clear()
                 for (userSnapshot in snapshot.children) {
@@ -85,10 +87,12 @@ class LogsScreenViewModel: ViewModel() {
 
     fun submitLog(log: LogEntry, onResult: (Boolean) -> Unit) {
         val currentUser = auth.currentUser ?: return
-        val uid = auth.currentUser?.uid ?: return
-        val logId = database.child(uid).push().key ?: UUID.randomUUID().toString()
+        val uid = currentUser.uid
+        val logId = logsDatabase.child(uid).push().key ?: UUID.randomUUID().toString()
 
-        database.child(uid).child(logId).setValue(log)
+        val logWithUserId = log.copy(userId = uid, userRole = userRole)
+
+        logsDatabase.child(uid).child(logId).setValue(logWithUserId)
             .addOnSuccessListener {
                 onResult(true)
             }

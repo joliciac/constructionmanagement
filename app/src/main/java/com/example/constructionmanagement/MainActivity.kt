@@ -2,6 +2,7 @@ package com.example.constructionmanagement
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,11 +18,21 @@ import androidx.navigation.compose.rememberNavController
 import com.example.constructionmanagement.navigation.BottomNavigationBar
 import com.example.constructionmanagement.navigation.NavigationGraph
 import com.example.constructionmanagement.ui.theme.ConstructionManagementTheme
+import com.google.firebase.database.DatabaseException
+import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        try {
+            FirebaseDatabase.getInstance()
+                .setPersistenceEnabled(true)
+        } catch (e: DatabaseException) {
+            Log.w("MainActivity", "Firebase persistence already enabled or late initialization: ${e.message}")
+        }
+
         enableEdgeToEdge()
         setContent {
             var isDarkTheme by remember { mutableStateOf(false) }
@@ -29,7 +40,6 @@ class MainActivity : ComponentActivity() {
                 darkTheme = isDarkTheme
             ) {
                 val navController = rememberNavController()
-                // Determine the current route
                 val currentRoute = navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
 
                 Scaffold(

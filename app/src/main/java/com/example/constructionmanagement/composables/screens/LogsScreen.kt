@@ -51,6 +51,7 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
     val selectedArea = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
+    val userId = remember { mutableStateOf("") }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
     val logs by rememberUpdatedState(viewModel.logs)

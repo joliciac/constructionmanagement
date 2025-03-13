@@ -7,5 +7,6 @@ data class LogEntry(
     val area: String = "",
     val description: String = "",
     val mediaUri: String? = null,
+    val userId: String = "",
     val userRole: String = ""
 )
