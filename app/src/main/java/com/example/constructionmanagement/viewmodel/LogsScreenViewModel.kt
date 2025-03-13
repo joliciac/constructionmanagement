@@ -10,6 +10,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
 
 class LogsScreenViewModel: ViewModel() {
@@ -21,6 +23,9 @@ class LogsScreenViewModel: ViewModel() {
     private val userRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
     private val auth = FirebaseAuth.getInstance()
     private var userRole: String = ""
+
+    private val _selectedLog = MutableStateFlow<LogEntry?>(null)
+    val selectedLog: StateFlow<LogEntry?> = _selectedLog
 
     init {
         fetchLogs()
@@ -90,9 +95,9 @@ class LogsScreenViewModel: ViewModel() {
         val uid = currentUser.uid
         val logId = logsDatabase.child(uid).push().key ?: UUID.randomUUID().toString()
 
-        val logWithUserId = log.copy(userId = uid, userRole = userRole)
+        val logCapture = log.copy(logId = logId, userId = uid, userRole = userRole)
 
-        logsDatabase.child(uid).child(logId).setValue(logWithUserId)
+        logsDatabase.child(uid).child(logId).setValue(logCapture)
             .addOnSuccessListener {
                 onResult(true)
             }
@@ -100,5 +105,34 @@ class LogsScreenViewModel: ViewModel() {
                 Log.e("LogsViewModel", "Failed to submit log", it)
                 onResult(false)
             }
+    }
+
+    fun deleteLog(log: LogEntry, onResult: (Boolean) -> Unit) {
+        val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
+        val logId = log.logId
+
+        if (logId.isEmpty()) {
+            onResult(false)
+            return
+        }
+
+        logsDatabase.child(uid).child(logId).removeValue()
+            .addOnSuccessListener {
+                _logs.removeIf{ it.logId == logId}
+                onResult(true)
+            }
+            .addOnFailureListener {
+                Log.e("LogsViewModel", "Failed to delete log", it)
+                onResult(false)
+            }
+    }
+
+    fun showLogOptions(log: LogEntry) {
+        _selectedLog.value = log
+    }
+
+    fun hideLogOptions() {
+        _selectedLog.value = null
     }
 }

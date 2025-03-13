@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,10 +53,10 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
     val selectedArea = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
-    val userId = remember { mutableStateOf("") }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
     val logs by rememberUpdatedState(viewModel.logs)
+    val selectedLog by viewModel.selectedLog.collectAsState()
 
 
     if (isBottomSheetVisible.value) {
@@ -98,6 +100,36 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
             )
         }
     }
+    selectedLog?.let { log ->
+        AlertDialog(
+            onDismissRequest = { viewModel.hideLogOptions() },
+            title = { Text("Edit or Delete Log") },
+            text = { Text("Do you want to edit or delete this log?") },
+            confirmButton = {
+                Button(onClick = {
+                    // Handle edit (open bottom sheet)
+                    viewModel.hideLogOptions()
+                    isBottomSheetVisible.value = true
+                }) {
+                    Text("Edit")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    viewModel.deleteLog(log) { success ->
+                        if (success) {
+                            Toast.makeText(context, "Log deleted!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Failed to delete log", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    viewModel.hideLogOptions()
+                }) {
+                    Text("Delete")
+                }
+            }
+        )
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -113,11 +145,13 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
             ScreenHeader(
                 icon = Icons.Default.Build, title = "Log Entries",onIconClick = { isBottomSheetVisible.value = true })
             Spacer(modifier = Modifier.height(16.dp) )
-            PreviousLogs(logs = logs)
+            PreviousLogs(
+                logs = logs,
+                onLogClick = {viewModel.showLogOptions(it)}
+            )
         }
     }
 }
-
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
@@ -399,7 +433,7 @@ fun LogEntryBottomSheet(
 }
 
 @Composable
-fun PreviousLogs(logs: List<LogEntry>) {
+fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
     Column(modifier = Modifier.padding(5.dp)) {
         Text(
             text = "Previous Log Entries:",
@@ -432,7 +466,8 @@ fun PreviousLogs(logs: List<LogEntry>) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                                .padding(vertical = 6.dp)
+                                .clickable { onLogClick(log) },
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
@@ -469,13 +504,6 @@ fun PreviewLogsTopBar() {
     ScreenHeader(onIconClick = {}, icon = Icons.Default.Build, title = "Log Entries")
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewLogList() {
-//    PreviousLogs(
-//        logs =
-//    )
-//}
 
 @Preview(showBackground = true, name = "Log Entry Bottom Sheet Preview")
 @Composable
