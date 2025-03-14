@@ -107,6 +107,7 @@ class LogsScreenViewModel: ViewModel() {
             }
     }
 
+
     fun deleteLog(log: LogEntry, onResult: (Boolean) -> Unit) {
         val currentUser = auth.currentUser ?: return
         val uid = currentUser.uid
@@ -134,5 +135,35 @@ class LogsScreenViewModel: ViewModel() {
 
     fun hideLogOptions() {
         _selectedLog.value = null
+    }
+
+    fun updateLog(updatedLog: LogEntry, onResult: (Boolean) -> Unit) {
+        val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
+        val logId = updatedLog.logId
+
+        if (logId.isEmpty()) {
+            Log.e("LogsViewModel", "Log ID is empty, cannot update log.")
+            onResult(false)
+            return
+        }
+
+        logsDatabase.child(uid).child(logId).setValue(updatedLog)
+            .addOnSuccessListener {
+                val index = _logs.indexOfFirst { it.logId == logId }
+                if (index != -1) {
+                    _logs[index] = updatedLog
+                }
+                onResult(true)
+                _selectedLog.value = null
+            }
+            .addOnFailureListener {
+                Log.e("LogsViewModel", "Failed to update log", it)
+                onResult(false)
+            }
+    }
+
+    fun setSelectedLog(log: LogEntry) {
+        _selectedLog.value = log
     }
 }
