@@ -10,6 +10,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
 
 class LogsScreenViewModel: ViewModel() {
@@ -17,9 +19,13 @@ class LogsScreenViewModel: ViewModel() {
     val logs: SnapshotStateList<LogEntry> get() = _logs
 
 
-    private val database = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("logs")
+    private val logsDatabase = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("logs")
     private val userRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
     private val auth = FirebaseAuth.getInstance()
+    private var userRole: String = ""
+
+    private val _selectedLog = MutableStateFlow<LogEntry?>(null)
+    val selectedLog: StateFlow<LogEntry?> = _selectedLog
 
     init {
         fetchLogs()
@@ -31,7 +37,8 @@ class LogsScreenViewModel: ViewModel() {
 
         userRef.child(uid).child("role").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val role = snapshot.getValue(String::class.java)
+                val role = snapshot.getValue(String::class.java) ?: "Worker"
+                userRole = role
                 if (role == "admin") {
                     fetchAllLogs()
                 } else {
@@ -47,7 +54,7 @@ class LogsScreenViewModel: ViewModel() {
     }
 
     private fun fetchUserLogs(uid: String) {
-        val userLogsRef = database.child(uid)
+        val userLogsRef = logsDatabase.child(uid)
         userLogsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 _logs.clear()
@@ -65,7 +72,7 @@ class LogsScreenViewModel: ViewModel() {
     }
 
     private fun fetchAllLogs() {
-        database.addValueEventListener(object : ValueEventListener{
+        logsDatabase.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
             _logs.clear()
                 for (userSnapshot in snapshot.children) {
@@ -85,10 +92,12 @@ class LogsScreenViewModel: ViewModel() {
 
     fun submitLog(log: LogEntry, onResult: (Boolean) -> Unit) {
         val currentUser = auth.currentUser ?: return
-        val uid = auth.currentUser?.uid ?: return
-        val logId = database.child(uid).push().key ?: UUID.randomUUID().toString()
+        val uid = currentUser.uid
+        val logId = logsDatabase.child(uid).push().key ?: UUID.randomUUID().toString()
 
-        database.child(uid).child(logId).setValue(log)
+        val logCapture = log.copy(logId = logId, userId = uid, userRole = userRole)
+
+        logsDatabase.child(uid).child(logId).setValue(logCapture)
             .addOnSuccessListener {
                 onResult(true)
             }
@@ -96,5 +105,65 @@ class LogsScreenViewModel: ViewModel() {
                 Log.e("LogsViewModel", "Failed to submit log", it)
                 onResult(false)
             }
+    }
+
+
+    fun deleteLog(log: LogEntry, onResult: (Boolean) -> Unit) {
+        val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
+        val logId = log.logId
+
+        if (logId.isEmpty()) {
+            onResult(false)
+            return
+        }
+
+        logsDatabase.child(uid).child(logId).removeValue()
+            .addOnSuccessListener {
+                _logs.removeIf{ it.logId == logId}
+                onResult(true)
+            }
+            .addOnFailureListener {
+                Log.e("LogsViewModel", "Failed to delete log", it)
+                onResult(false)
+            }
+    }
+
+    fun showLogOptions(log: LogEntry) {
+        _selectedLog.value = log
+    }
+
+    fun hideLogOptions() {
+        _selectedLog.value = null
+    }
+
+    fun updateLog(updatedLog: LogEntry, onResult: (Boolean) -> Unit) {
+        val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
+        val logId = updatedLog.logId
+
+        if (logId.isEmpty()) {
+            Log.e("LogsViewModel", "Log ID is empty, cannot update log.")
+            onResult(false)
+            return
+        }
+
+        logsDatabase.child(uid).child(logId).setValue(updatedLog)
+            .addOnSuccessListener {
+                val index = _logs.indexOfFirst { it.logId == logId }
+                if (index != -1) {
+                    _logs[index] = updatedLog
+                }
+                onResult(true)
+                _selectedLog.value = null
+            }
+            .addOnFailureListener {
+                Log.e("LogsViewModel", "Failed to update log", it)
+                onResult(false)
+            }
+    }
+
+    fun setSelectedLog(log: LogEntry) {
+        _selectedLog.value = log
     }
 }

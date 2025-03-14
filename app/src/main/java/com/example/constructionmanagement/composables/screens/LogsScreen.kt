@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,7 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,20 +43,16 @@ import com.example.constructionmanagement.data.LogEntry
 import com.example.constructionmanagement.viewmodel.LogsScreenViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, viewModel: LogsScreenViewModel = viewModel()) {
-    val isBottomSheetVisible = isBottomSheetVisibleOverride ?: remember { mutableStateOf(false) }
-    val title = remember { mutableStateOf("") }
-    val date = remember { mutableStateOf("") }
-    val time = remember { mutableStateOf("") }
-    val selectedArea = remember { mutableStateOf("") }
-    val description = remember { mutableStateOf("") }
-    val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
+fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
+    val isBottomSheetVisible = remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
     val logs by rememberUpdatedState(viewModel.logs)
+    val selectedLog by viewModel.selectedLog.collectAsState()
 
 
     if (isBottomSheetVisible.value) {
@@ -62,40 +61,59 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
             sheetState = sheetState
         ) {
             LogEntryBottomSheet(
-                title = title,
-                date = date,
-                time = time,
-                selectedArea = selectedArea,
-                description = description,
-                selectedMediaUri = selectedMediaUri,
+                selectedLog = selectedLog,
                 onDismiss = { isBottomSheetVisible.value = false },
-                onSubmit = {
-                    val logEntry = LogEntry(
-                        title = title.value,
-                        date = date.value,
-                        time = time.value,
-                        area = selectedArea.value,
-                        description = description.value,
-                        mediaUri = selectedMediaUri.value?.toString()
-                    )
-                    viewModel.submitLog(logEntry){ success ->
-                        if (success) {
-                            Toast.makeText(context, "Log submitted!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Submission failed", Toast.LENGTH_SHORT).show()
+                onSubmit = { updatedLog ->
+                    if (selectedLog != null) {
+                        viewModel.updateLog(updatedLog) { success ->
+                            if (success) {
+                                Toast.makeText(context, "Log updated!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        viewModel.submitLog(updatedLog) { success ->
+                            if (success) {
+                                Toast.makeText(context, "Log submitted!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Submission failed", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
-                    title.value = ""
-                    date.value = ""
-                    time.value = ""
-                    selectedArea.value = ""
-                    description.value = ""
-                    selectedMediaUri.value = null
-
                     isBottomSheetVisible.value = false
                 }
             )
         }
+    }
+    selectedLog?.let { log ->
+        AlertDialog(
+            onDismissRequest = { viewModel.hideLogOptions() },
+            title = { Text("Edit or Delete Log") },
+            text = { Text("Do you want to edit or delete this log?") },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.setSelectedLog(log)
+                    isBottomSheetVisible.value = true
+                }) {
+                    Text("Edit")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    viewModel.deleteLog(log) { success ->
+                        if (success) {
+                            Toast.makeText(context, "Log deleted!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Failed to delete log", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    viewModel.hideLogOptions()
+                }) {
+                    Text("Delete")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -112,11 +130,13 @@ fun LogsScreen(isBottomSheetVisibleOverride: MutableState<Boolean>? = null, view
             ScreenHeader(
                 icon = Icons.Default.Build, title = "Log Entries",onIconClick = { isBottomSheetVisible.value = true })
             Spacer(modifier = Modifier.height(16.dp) )
-            PreviousLogs(logs = logs)
+            PreviousLogs(
+                logs = logs,
+                onLogClick = {viewModel.showLogOptions(it)}
+            )
         }
     }
 }
-
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
@@ -183,15 +203,18 @@ fun DatePickerModalInput(
 // Bottom Sheet Code
 @Composable
 fun LogEntryBottomSheet(
-    title: MutableState<String>,
-    date: MutableState<String>,
-    time: MutableState<String>,
-    selectedArea: MutableState<String>,
-    description: MutableState<String>,
-    selectedMediaUri: MutableState<Uri?>,
+    selectedLog: LogEntry?,
     onDismiss: () -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: (LogEntry) -> Unit
 ) {
+    // I moved this from log screen composable so that the bottom sheet can manage its own state
+    val title = remember { mutableStateOf( "") }
+    val date = remember { mutableStateOf( "") }
+    val time = remember { mutableStateOf( "") }
+    val selectedArea = remember { mutableStateOf( "") }
+    val description = remember { mutableStateOf("") }
+    val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
+
     val showDatePicker = remember { mutableStateOf(false) }
     // Dropdown state
     var isDropdownExpanded by remember { mutableStateOf(false) }
@@ -206,13 +229,24 @@ fun LogEntryBottomSheet(
         }
     }
 
+    LaunchedEffect(selectedLog) {
+        selectedLog?.let {
+            title.value = it.title
+            date.value = it.date
+            time.value = it.time
+            selectedArea.value = it.area
+            description.value = it.description
+            selectedMediaUri.value = it.mediaUri?.let { uriString -> Uri.parse(uriString) }
+        }
+    }
+
     Column(
         modifier = Modifier
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "Add a New Log Entry",
+            text = if (selectedLog != null) "Edit Log Entry " else "Add a New Log Entry",
             fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleLarge,
@@ -384,21 +418,39 @@ fun LogEntryBottomSheet(
             }
             Spacer(modifier = Modifier.width(10.dp))
             Button(
-                onClick = onSubmit,
+                onClick = {
+                    val updatedLog = selectedLog?.copy(
+                        title = if (title.value.isNotBlank()) title.value else selectedLog.title,
+                        date = if (date.value.isNotBlank()) date.value else selectedLog.date,
+                        time = if (time.value.isNotBlank()) time.value else selectedLog.time,
+                        area = if (selectedArea.value.isNotBlank()) selectedArea.value else selectedLog.area,
+                        description = if (description.value.isNotBlank()) description.value else selectedLog.description,
+                        mediaUri = selectedMediaUri.value?.toString() ?: selectedLog.mediaUri
+                    ) ?: LogEntry(
+                        logId = UUID.randomUUID().toString(),
+                        title = title.value,
+                        date = date.value,
+                        time = time.value,
+                        area = selectedArea.value,
+                        description = description.value,
+                        mediaUri = selectedMediaUri.value?.toString()
+                    )
+                    onSubmit(updatedLog)
+                },
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFE3E6EF),
                     contentColor = Color(0xFF445E91)
                 )
             ) {
-                Text("Submit")
+                Text(if (selectedLog != null) "Update Log" else "Submit")
             }
         }
     }
 }
 
 @Composable
-fun PreviousLogs(logs: List<LogEntry>) {
+fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
     Column(modifier = Modifier.padding(5.dp)) {
         Text(
             text = "Previous Log Entries:",
@@ -431,7 +483,8 @@ fun PreviousLogs(logs: List<LogEntry>) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                                .padding(vertical = 6.dp)
+                                .clickable { onLogClick(log) },
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
@@ -462,38 +515,26 @@ fun PreviousLogs(logs: List<LogEntry>) {
 //    LogsScreen(navController = previewNavController, isBottomSheetVisibleOverride = isBottomSheetVisible)
 //}
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewLogsTopBar() {
-    ScreenHeader(onIconClick = {}, icon = Icons.Default.Build, title = "Log Entries")
-}
-
 //@Preview(showBackground = true)
 //@Composable
-//fun PreviewLogList() {
-//    PreviousLogs(
-//        logs =
+//fun PreviewLogsTopBar() {
+//    ScreenHeader(onIconClick = {}, icon = Icons.Default.Build, title = "Log Entries")
+//}
+//
+//
+//@Preview(showBackground = true, name = "Log Entry Bottom Sheet Preview")
+//@Composable
+//fun LogEntryBottomSheetPreview() {
+//    val title = remember { mutableStateOf("Cementing") }
+//    val date = remember { mutableStateOf("16/01/2025") }
+//    val time = remember { mutableStateOf("10:00 AM") }
+//    val selectedArea = remember { mutableStateOf("") }
+//    val description = remember { mutableStateOf("Work completed on the site.") }
+//    val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
+//
+//    LogEntryBottomSheet(
+//        onDismiss = { },
+//        onSubmit = { },
+//        selectedLog = TODO()
 //    )
 //}
-
-@Preview(showBackground = true, name = "Log Entry Bottom Sheet Preview")
-@Composable
-fun LogEntryBottomSheetPreview() {
-    val title = remember { mutableStateOf("Cementing") }
-    val date = remember { mutableStateOf("16/01/2025") }
-    val time = remember { mutableStateOf("10:00 AM") }
-    val selectedArea = remember { mutableStateOf("") }
-    val description = remember { mutableStateOf("Work completed on the site.") }
-    val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
-
-    LogEntryBottomSheet(
-        title = title,
-        date = date,
-        time = time,
-        selectedArea = selectedArea,
-        description = description,
-        selectedMediaUri = selectedMediaUri,
-        onDismiss = { },
-        onSubmit = { }
-    )
-}
