@@ -1,8 +1,5 @@
 package com.example.constructionmanagement.data.logs
 
-import com.example.constructionmanagement.data.LogEntry
-import com.example.constructionmanagement.data.LogEntryEntity
-
 fun LogEntryEntity.toLogEntry(): LogEntry {
     return LogEntry(
         logId = logId,

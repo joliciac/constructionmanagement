@@ -5,11 +5,10 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.constructionmanagement.data.LogDao
-import com.example.constructionmanagement.data.LogEntry
-import com.example.constructionmanagement.data.LogsDatabase
+import com.example.constructionmanagement.data.logs.LogDao
+import com.example.constructionmanagement.data.logs.LogEntry
+import com.example.constructionmanagement.data.logs.LogsDatabase
 import com.example.constructionmanagement.data.logs.ConnectivityHelper
 import com.example.constructionmanagement.data.logs.toLogEntry
 import com.example.constructionmanagement.data.logs.toLogEntryEntity
@@ -20,7 +19,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.UUID
 

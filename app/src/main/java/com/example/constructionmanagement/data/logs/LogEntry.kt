@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.data
+package com.example.constructionmanagement.data.logs
 
 data class LogEntry(
     val logId: String = "",

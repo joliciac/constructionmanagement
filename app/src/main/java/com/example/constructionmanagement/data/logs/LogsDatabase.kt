@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.data
+package com.example.constructionmanagement.data.logs
 
 import android.content.Context
 import androidx.room.Database
