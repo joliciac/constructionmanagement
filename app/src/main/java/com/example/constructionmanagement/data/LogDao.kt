@@ -16,4 +16,7 @@ interface LogDao {
 
     @Query("UPDATE logs SET isSynced = 1 WHERE logId = :logId")
     suspend fun markAsSynced(logId: String)
+
+    @Query("DELETE FROM logs WHERE logId = :logId")
+    suspend fun deleteLog(logId: String)
 }

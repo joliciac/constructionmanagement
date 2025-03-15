@@ -1,10 +1,18 @@
 package com.example.constructionmanagement.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.constructionmanagement.data.LogDao
 import com.example.constructionmanagement.data.LogEntry
+import com.example.constructionmanagement.data.LogsDatabase
+import com.example.constructionmanagement.data.logs.ConnectivityHelper
+import com.example.constructionmanagement.data.logs.toLogEntry
+import com.example.constructionmanagement.data.logs.toLogEntryEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -12,9 +20,11 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.util.UUID
 
-class LogsScreenViewModel: ViewModel() {
+class LogsScreenViewModel(application: Application) : AndroidViewModel(application) {
     private val _logs = mutableStateListOf<LogEntry>()
     val logs: SnapshotStateList<LogEntry> get() = _logs
 
@@ -27,11 +37,26 @@ class LogsScreenViewModel: ViewModel() {
     private val _selectedLog = MutableStateFlow<LogEntry?>(null)
     val selectedLog: StateFlow<LogEntry?> = _selectedLog
 
+    private val logDao: LogDao = LogsDatabase.getDatabase(application).logDao()
+
     init {
         fetchLogs()
+        viewModelScope.launch {
+            ConnectivityHelper.isOnline.collect() { isOnline ->
+                if (isOnline) {
+                    syncLogsWithFirebase()
+                }
+            }
+        }
     }
 
     private fun fetchLogs() {
+        viewModelScope.launch {
+            val cachedLogs = logDao.getUnsyncedLogs()
+            _logs.clear()
+            _logs.addAll(cachedLogs.map { it.toLogEntry() })
+        }
+
         val currentUser = auth.currentUser ?: return
         val uid = currentUser.uid
 
@@ -60,7 +85,10 @@ class LogsScreenViewModel: ViewModel() {
                 _logs.clear()
                 for (logSnapshot in snapshot.children) {
                     val log = logSnapshot.getValue(LogEntry::class.java)
-                    log?.let { _logs.add(it)}
+                    log?.let {
+                        _logs.add(it)
+                        saveLogToLocal(it)
+                    }
                 }
                 Log.d("LogsViewModel", "User logs fetched: ${_logs.size} entries")
             }
@@ -78,7 +106,10 @@ class LogsScreenViewModel: ViewModel() {
                 for (userSnapshot in snapshot.children) {
                     for (logSnapshot in userSnapshot.children){
                         val log = logSnapshot.getValue(LogEntry::class.java)
-                        log?.let { _logs.add(it) }
+                        log?.let {
+                            _logs.add(it)
+                            saveLogToLocal(it)
+                        }
                     }
                 }
                 Log.d("LogsViewModel", "All logs fetched: ${_logs.size} entries")
@@ -99,12 +130,20 @@ class LogsScreenViewModel: ViewModel() {
 
         logsDatabase.child(uid).child(logId).setValue(logCapture)
             .addOnSuccessListener {
+                saveLogToLocal(logCapture.copy(isSynced = true))
                 onResult(true)
             }
             .addOnFailureListener {
+                saveLogToLocal(logCapture.copy(isSynced = false))
                 Log.e("LogsViewModel", "Failed to submit log", it)
                 onResult(false)
             }
+    }
+
+    private fun saveLogToLocal(log: LogEntry) {
+        viewModelScope.launch {
+            logDao.insertLog(log.toLogEntryEntity())
+        }
     }
 
 
@@ -121,6 +160,7 @@ class LogsScreenViewModel: ViewModel() {
         logsDatabase.child(uid).child(logId).removeValue()
             .addOnSuccessListener {
                 _logs.removeIf{ it.logId == logId}
+                viewModelScope.launch { logDao.deleteLog(log.logId) }
                 onResult(true)
             }
             .addOnFailureListener {
@@ -161,6 +201,26 @@ class LogsScreenViewModel: ViewModel() {
                 Log.e("LogsViewModel", "Failed to update log", it)
                 onResult(false)
             }
+    }
+
+    fun markLogAsSynced(logId: String) {
+        viewModelScope.launch {
+            logDao.markAsSynced(logId)
+        }
+    }
+
+    fun syncLogsWithFirebase() {
+        viewModelScope.launch {
+            val unsyncedLogs = logDao.getUnsyncedLogs()
+            for (log in unsyncedLogs ) {
+                submitLog(log.toLogEntry()) { success ->
+                    if (success) {
+                        markLogAsSynced(log.logId)
+                    }
+                }
+            }
+        }
+
     }
 
     fun setSelectedLog(log: LogEntry) {
