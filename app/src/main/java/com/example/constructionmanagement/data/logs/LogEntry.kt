@@ -1,4 +1,4 @@
-package com.example.constructionmanagement.data
+package com.example.constructionmanagement.data.logs
 
 data class LogEntry(
     val logId: String = "",
@@ -9,5 +9,6 @@ data class LogEntry(
     val description: String = "",
     val mediaUri: String? = null,
     val userId: String = "",
-    val userRole: String = ""
+    val userRole: String = "",
+    val isSynced: Boolean = false
 )

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -75,7 +76,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.androidx.material3.android)
-    implementation(libs.coil.compose) // Use the latest version
+    implementation(libs.coil.compose)
 
 
     // CameraX dependencies for image/video capture
@@ -92,6 +93,10 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.firestore)
 
+    //Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
 
     testImplementation(libs.junit)
