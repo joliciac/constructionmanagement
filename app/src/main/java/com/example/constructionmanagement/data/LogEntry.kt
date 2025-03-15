@@ -9,5 +9,6 @@ data class LogEntry(
     val description: String = "",
     val mediaUri: String? = null,
     val userId: String = "",
-    val userRole: String = ""
+    val userRole: String = "",
+    val isSynced: Boolean = false
 )

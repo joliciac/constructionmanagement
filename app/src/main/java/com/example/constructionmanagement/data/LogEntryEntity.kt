@@ -12,5 +12,7 @@ data class LogEntryEntity(
     val area: String,
     val description: String,
     val mediaUri: String?,
+    val userId: String,
+    val userRole: String,
     val isSynced: Boolean = false
 )
