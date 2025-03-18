@@ -50,7 +50,7 @@ fun NavigationGraph(
                 )
         }
         composable("home") {
-            HomeScreen(userRole = "Admin")
+            HomeScreen()
         }
         composable("logs"){
             LogsScreen()

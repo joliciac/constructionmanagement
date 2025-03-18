@@ -29,14 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.size.Size
 import com.example.constructionmanagement.R
 import com.example.constructionmanagement.viewmodel.HomeScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(userRole: String, viewModel: HomeScreenViewModel = viewModel()) {
-    val isAdmin = userRole == "Admin"
+fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
+    val userRole by viewModel.userRole.collectAsState()
     val progress by viewModel.progress.collectAsState()
+    val isAdmin = userRole == "Admin"
 
     Scaffold { paddingValues ->
         Column(
@@ -50,7 +52,7 @@ fun HomeScreen(userRole: String, viewModel: HomeScreenViewModel = viewModel()) {
                 title = "Home Feed",
                 painter = painterResource(id = R.drawable.home_work_24px)
             )
-            Spacer(modifier = Modifier.padding(30.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             ProgressBar(
                 progress = progress,
@@ -72,9 +74,6 @@ fun HomeScreen(userRole: String, viewModel: HomeScreenViewModel = viewModel()) {
                     valueRange = 0f..1f,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-            } else {
-                    Spacer(modifier = Modifier.height(16.dp))
-                Text("Viewing Progress")
             }
         }
     }
@@ -128,7 +127,7 @@ fun ProgressBar(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenScaffoldPreview(){
-    HomeScreen(userRole = "Admin")
+    HomeScreen()
 }
 
 @Preview(showBackground = true)
