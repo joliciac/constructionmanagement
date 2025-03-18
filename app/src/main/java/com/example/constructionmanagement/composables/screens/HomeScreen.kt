@@ -2,6 +2,7 @@ package com.example.constructionmanagement.composables.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,24 +13,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.size.Size
 import com.example.constructionmanagement.R
 import com.example.constructionmanagement.viewmodel.HomeScreenViewModel
 
@@ -75,6 +69,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+            CheckInAndOut(viewModel = viewModel)
         }
     }
 }
@@ -122,7 +117,53 @@ fun ProgressBar(
     }
 }
 
+@Composable
+fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
+    val elapsedTime by viewModel.elapsedTime.collectAsState()
+    val checkInTime by viewModel.checkInTime.collectAsState()
+    val isCheckedIn = checkInTime != null
 
+    val hours = (elapsedTime / 3600).toInt()
+    val minutes = ((elapsedTime % 3600) / 60).toInt()
+    val seconds = (elapsedTime % 60).toInt()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Check-In RadioButton
+        if (!isCheckedIn) {
+            RadioButton(
+                selected = false,
+                onClick = { viewModel.checkIn() },
+                modifier = Modifier.padding(16.dp),
+                enabled = true
+            )
+            Text("Check-In")
+        }
+
+        // Display elapsed time
+        Text(
+            text = "%02d:%02d:%02d".format(hours, minutes, seconds),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        // Check-Out RadioButton
+        if (isCheckedIn) {
+            RadioButton(
+                selected = true,
+                onClick = { viewModel.checkOut() },
+                modifier = Modifier.padding(16.dp),
+                enabled = true
+            )
+            Text("Check-Out")
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -139,4 +180,10 @@ fun PreviewMilestoneProgressBar() {
         isAdmin = false,
         onProgressChange = {}
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CheckInAndOutPreview(){
+    CheckInAndOut()
 }
