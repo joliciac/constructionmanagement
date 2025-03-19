@@ -2,6 +2,7 @@ package com.example.constructionmanagement.composables.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,6 +71,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
                 )
             }
             CheckInAndOut(viewModel = viewModel)
+            TaskUpdates()
         }
     }
 }
@@ -95,7 +97,6 @@ fun ProgressBar(
         ) {
             for (i in 0 until milestones) {
                 val isCompleted = (i * milestoneSpacing) <= progress
-
 
                 Box(
                     modifier = Modifier
@@ -127,6 +128,12 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
     val minutes = ((elapsedTime % 3600) / 60).toInt()
     val seconds = (elapsedTime % 60).toInt()
 
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,34 +141,46 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Check-In RadioButton
-        if (!isCheckedIn) {
-            RadioButton(
-                selected = false,
-                onClick = { viewModel.checkIn() },
-                modifier = Modifier.padding(16.dp),
-                enabled = true
-            )
-            Text("Check-In")
-        }
+            if (!isCheckedIn) {
+                RadioButton(
+                    selected = false,
+                    onClick = { viewModel.checkIn() },
+                    modifier = Modifier.padding(16.dp),
+                    enabled = true
+                )
+                Text("Check-In")
+            }
 
-        // Display elapsed time
-        Text(
-            text = "%02d:%02d:%02d".format(hours, minutes, seconds),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        // Check-Out RadioButton
-        if (isCheckedIn) {
-            RadioButton(
-                selected = true,
-                onClick = { viewModel.checkOut() },
-                modifier = Modifier.padding(16.dp),
-                enabled = true
+            Text(
+                text = "%02d:%02d:%02d".format(hours, minutes, seconds),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
-            Text("Check-Out")
+
+            if (isCheckedIn) {
+                RadioButton(
+                    selected = true,
+                    onClick = { viewModel.checkOut() },
+                    modifier = Modifier.padding(16.dp),
+                    enabled = true
+                )
+                Text("Check-Out")
+            }
         }
+    }
+}
+
+@Composable
+fun TaskUpdates() {
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 6.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ){
+        Text("Today's Task Summary: ",
+            modifier = Modifier.padding(10.dp),
+            style = MaterialTheme.typography.titleLarge)
     }
 }
 

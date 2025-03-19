@@ -8,6 +8,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -84,6 +85,7 @@ class HomeScreenViewModel : ViewModel() {
 
         userRef.child(userId).child("checkInTime").get().addOnSuccessListener {
             val checkInTime = it.getValue(Long::class.java)
+                ?: it.getValue(String::class.java)?.toLongOrNull()
             if (checkInTime != null) {
                 _checkInTime.value = checkInTime
                 isCheckedIn = true
@@ -108,24 +110,24 @@ class HomeScreenViewModel : ViewModel() {
     fun checkOut() {
         val currentUser = auth.currentUser ?: return
         val userId = currentUser.uid
-        val checkOutTime = System.currentTimeMillis() / 1000 // current time in seconds
+        val checkOutTime = System.currentTimeMillis() / 1000
 
         // Save check-out time to Firebase
         userRef.child(userId).child("checkOutTime").setValue(checkOutTime).addOnSuccessListener {
             isCheckedIn = false
-            _elapsedTime.value = 0L // Reset elapsed time on check-out
+            _elapsedTime.value = 0L
+            _checkInTime.value = null
         }
     }
 
     private fun startTimer(checkInTime: Long) {
-        val startTime = checkInTime * 1000 // Convert to milliseconds
+        val startTime = checkInTime * 1000
 
-        // Timer updates every second
         viewModelScope.launch {
             while (isCheckedIn) {
                 delay(1000)
                 val currentTime = System.currentTimeMillis()
-                _elapsedTime.value = (currentTime - startTime) / 1000 // elapsed time in seconds
+                _elapsedTime.value = (currentTime - startTime) / 1000
             }
         }
     }
@@ -133,7 +135,7 @@ class HomeScreenViewModel : ViewModel() {
     private fun calculateElapsedTime(checkInTime: Long) {
         val startTime = checkInTime * 1000 // Convert to milliseconds
         val currentTime = System.currentTimeMillis()
-        _elapsedTime.value = (currentTime - startTime) / 1000 // elapsed time in seconds
+        _elapsedTime.value = (currentTime - startTime) / 1000
     }
 
 }
