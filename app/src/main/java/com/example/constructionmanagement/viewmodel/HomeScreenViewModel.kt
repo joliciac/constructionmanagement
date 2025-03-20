@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class HomeScreenViewModel : ViewModel() {
     private val progressDatabase = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("progress")
     private val userRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
+    private val taskRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("tasks")
     private val auth = FirebaseAuth.getInstance()
 
     //Progress Bar
@@ -32,6 +33,10 @@ class HomeScreenViewModel : ViewModel() {
     val checkInTime: StateFlow<Long?> = _checkInTime
     private val _elapsedTime = MutableStateFlow(0L)
     val elapsedTime: StateFlow<Long> = _elapsedTime
+
+    //Task updates
+    private val _tasks = MutableStateFlow<List<String>>(emptyList())
+    val tasks: StateFlow<List<String>> = _tasks
 
     private var isCheckedIn = false
 
@@ -136,6 +141,21 @@ class HomeScreenViewModel : ViewModel() {
         val startTime = checkInTime * 1000 // Convert to milliseconds
         val currentTime = System.currentTimeMillis()
         _elapsedTime.value = (currentTime - startTime) / 1000
+    }
+
+    fun addTask(task: String) {
+        val taskId = taskRef.push().key
+        taskId?.let {
+            taskRef.child(it).setValue(task).addOnSuccessListener {
+                _tasks.value += task
+
+                sendTaskNotification(task)
+            }
+        }
+    }
+
+    private fun sendTaskNotification(task: String) {
+
     }
 
 }
