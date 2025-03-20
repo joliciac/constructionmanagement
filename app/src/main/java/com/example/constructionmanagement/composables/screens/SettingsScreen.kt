@@ -63,36 +63,45 @@ fun SettingsScreen(
                 onIconClick = {}
             )
             Spacer(modifier = Modifier.height(32.dp))
-
-            SettingsOptionRow(
-                iconPainter = painterResource(id = R.drawable.notifications_24px),
-                title = stringResource(id = R.string.notification_opt),
-                onClick = onNotificationClick
-            )
-            Switch(
-                modifier = Modifier.fillMaxWidth(),
-                checked = notificationsEnabled,
-                onCheckedChange = { notificationsEnabled = it },
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    SettingsOptionRow(
+                        iconPainter = painterResource(id = R.drawable.notifications_24px),
+                        title = stringResource(id = R.string.notification_opt),
+                        onClick = onNotificationClick
+                    )
+                    Switch(
+                        modifier = Modifier.fillMaxWidth(),
+                        checked = notificationsEnabled,
+                        onCheckedChange = { notificationsEnabled = it },
+                    )
+                }
+                SettingsOptionRow(
+                    iconPainter = painterResource(id = R.drawable.globe_asia_24px),
+                    title = stringResource(id = R.string.change_language_opt),
+                    onClick = { showLanguageDialog = true }
                 )
-            SettingsOptionRow(
-                iconPainter = painterResource(id = R.drawable.globe_asia_24px),
-                title = stringResource(id = R.string.change_language_opt),
-                onClick = { showLanguageDialog = true }
-            )
-            SettingsOptionRow(
-                iconPainter = if (isDarkTheme) {
-                    painterResource(id = R.drawable.dark_mode__filled_24px)
-                } else {
-                     painterResource(id = R.drawable.dark_mode_24px)
-                },
-                title = stringResource(id = R.string.dark_mode_theme),
-                onClick = onThemeClick
-            )
-            SettingsOptionRow(
-                iconPainter = painterResource(id = R.drawable.logout_24px),
-                title = stringResource(id = R.string.logout),
-                onClick = onLogoutClick
-            )
+                SettingsOptionRow(
+                    iconPainter = if (isDarkTheme) {
+                        painterResource(id = R.drawable.dark_mode__filled_24px)
+                    } else {
+                        painterResource(id = R.drawable.dark_mode_24px)
+                    },
+                    title = stringResource(id = R.string.dark_mode_theme),
+                    onClick = onThemeClick
+                )
+                SettingsOptionRow(
+                    iconPainter = painterResource(id = R.drawable.logout_24px),
+                    title = stringResource(id = R.string.logout),
+                    onClick = onLogoutClick
+                )
+            }
 
             if (showLanguageDialog){
                 LangSelectionDialogue(
@@ -153,13 +162,14 @@ fun SettingsOptionRow(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.6f)
             .padding(vertical = 8.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
             .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
     ) {
         Icon(
             painter = iconPainter,
