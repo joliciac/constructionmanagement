@@ -2,6 +2,7 @@ package com.example.constructionmanagement.composables.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 
 @Composable
@@ -42,6 +44,10 @@ fun SettingsScreen(
     onLogoutClick: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var notificationsEnabled by remember { mutableStateOf(true) }
+    val onNotificationClick: () -> Unit = {
+        notificationsEnabled = !notificationsEnabled
+    }
 
     Scaffold() { paddingValues ->
         Column(
@@ -52,14 +58,22 @@ fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ScreenHeader(
-                icon = Icons.Default.Settings, title = stringResource(R.string.settings_title), onIconClick = {}
+                icon = Icons.Default.Settings,
+                title = stringResource(R.string.settings_title),
+                onIconClick = {}
             )
             Spacer(modifier = Modifier.height(32.dp))
+
             SettingsOptionRow(
                 iconPainter = painterResource(id = R.drawable.notifications_24px),
                 title = stringResource(id = R.string.notification_opt),
                 onClick = onNotificationClick
             )
+            Switch(
+                modifier = Modifier.fillMaxWidth(),
+                checked = notificationsEnabled,
+                onCheckedChange = { notificationsEnabled = it },
+                )
             SettingsOptionRow(
                 iconPainter = painterResource(id = R.drawable.globe_asia_24px),
                 title = stringResource(id = R.string.change_language_opt),
@@ -191,7 +205,6 @@ fun LangSelectionDialogue(
             }
         }
     )
-
 }
 
 
