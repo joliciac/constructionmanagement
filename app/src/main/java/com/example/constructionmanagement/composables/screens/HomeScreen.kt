@@ -67,7 +67,12 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
                         viewModel.updateProgress(newProgress)
                     },
                     valueRange = 0f..1f,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color(0xFF351D43),
+                        activeTrackColor = Color(0xFF351D43),
+                        inactiveTrackColor = Color(0xFFF3E9F9)
+                    )
                 )
             }
             CheckInAndOut(viewModel = viewModel)
@@ -92,7 +97,9 @@ fun ProgressBar(
         Text(text = "Project Milestone")
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             for (i in 0 until milestones) {
@@ -132,7 +139,11 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF6F0F9),
+            contentColor = Color(0xFF351D43)
+        )
     ) {
     Row(
         modifier = Modifier
@@ -176,11 +187,15 @@ fun TaskUpdates() {
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF6F0F9),
+            contentColor = Color(0xFF351D43)
+        )
     ){
         Text("Today's Task Summary: ",
-            modifier = Modifier.padding(10.dp),
-            style = MaterialTheme.typography.titleLarge)
+            modifier = Modifier.padding(10.dp)
+        )
     }
 }
 

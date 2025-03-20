@@ -21,7 +21,7 @@ fun BottomNavigationBar(navController: NavController) {
     )
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceBright,
+        containerColor = Color(0xFFF3E9F9),
         contentColor = Color.White,
         tonalElevation = 9.dp
     ) {
