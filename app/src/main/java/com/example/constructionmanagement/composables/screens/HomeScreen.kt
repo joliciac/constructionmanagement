@@ -8,16 +8,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +42,10 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
     val userRole by viewModel.userRole.collectAsState()
     val progress by viewModel.progress.collectAsState()
     val isAdmin = userRole == "Admin"
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchTask()
+    }
 
     Scaffold { paddingValues ->
         Column(
@@ -182,7 +194,11 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
 }
 
 @Composable
-fun TaskUpdates() {
+fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
+    val userRole by viewModel.userRole.collectAsState()
+    val isAdmin = userRole == "Admin"
+    val tasks by viewModel.tasks.collectAsState()
+    val newTask = remember { mutableStateOf("") }
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -192,17 +208,76 @@ fun TaskUpdates() {
             containerColor = Color(0xFFF6F0F9),
             contentColor = Color(0xFF351D43)
         )
-    ){
-        Text("Today's Task Summary: ",
-            modifier = Modifier.padding(10.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+        Text(
+            "Today's Task Summary: ",
+            modifier = Modifier.padding(5.dp)
         )
+            if (isAdmin) {
+                TextField(
+                    value = newTask.value,
+                    onValueChange = { newTask.value = it },
+                    label = { Text("Enter a task")},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFDBCCE4),
+                        focusedContainerColor = Color(0xFFDBCCE4))
+                )
+                Button(
+                    onClick = {
+                        if (newTask.value.isNotEmpty()) {
+                            viewModel.addTask(newTask.value)
+                            newTask.value = ""
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF351D43)),
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Add")
+                }
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxHeight(),
+            ) {
+                items(tasks) { task ->
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "• $task",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        if (isAdmin) {
+                            IconButton(
+                                onClick = { viewModel.deleteTask(task) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete Task",
+                                    tint = Color(0xFF351D43)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenScaffoldPreview(){
-    HomeScreen()
+    val viewModel = remember { HomeScreenViewModel() }
+    HomeScreen(viewModel = viewModel())
 }
 
 @Preview(showBackground = true)

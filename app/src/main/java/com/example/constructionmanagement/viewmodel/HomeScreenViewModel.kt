@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class HomeScreenViewModel : ViewModel() {
     private val progressDatabase = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("progress")
     private val userRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
+    private val taskRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("tasks")
     private val auth = FirebaseAuth.getInstance()
 
     //Progress Bar
@@ -32,6 +33,10 @@ class HomeScreenViewModel : ViewModel() {
     val checkInTime: StateFlow<Long?> = _checkInTime
     private val _elapsedTime = MutableStateFlow(0L)
     val elapsedTime: StateFlow<Long> = _elapsedTime
+
+    //Task updates
+    private val _tasks = MutableStateFlow<List<String>>(emptyList())
+    val tasks: StateFlow<List<String>> = _tasks
 
     private var isCheckedIn = false
 
@@ -138,4 +143,46 @@ class HomeScreenViewModel : ViewModel() {
         _elapsedTime.value = (currentTime - startTime) / 1000
     }
 
+    fun addTask(task: String) {
+        val taskId = taskRef.push().key
+        taskId?.let {
+            taskRef.child(it).setValue(task).addOnSuccessListener {
+                Log.d("HomeScreenViewModel", "Task added successfully")
+            }
+                .addOnFailureListener { e ->
+                    Log.e("HomeScreenViewModel", "Failed to add task", e)
+                }
+        }
+    }
+
+    fun fetchTask(){
+        taskRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val taskList = mutableListOf<String>()
+                snapshot.children.forEach{ taskSnapshot ->
+                    val task = taskSnapshot.getValue(String::class.java)
+                    task?.let { taskList.add(it) }
+                }
+                _tasks.value = taskList
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HomeScreenViewModel", "Error fetching tasks", error.toException())
+            }
+        })
+    }
+
+    fun deleteTask(task: String) {
+        taskRef.orderByValue().equalTo(task).get().addOnSuccessListener { snapshot ->
+            snapshot.children.forEach {
+                it.ref.removeValue().addOnSuccessListener {
+                    Log.d("HomeScreenViewModel", "Task deleted successfully")
+                    _tasks.value = _tasks.value.filter { it != task }
+                }
+                    .addOnFailureListener { e ->
+                        Log.e("HomeScreenViewModel", "Failed to delete task", e)
+                    }
+            }
+        }
+    }
 }
