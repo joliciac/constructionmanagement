@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,10 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
     val userRole by viewModel.userRole.collectAsState()
     val progress by viewModel.progress.collectAsState()
     val isAdmin = userRole == "Admin"
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchTask()
+    }
 
     Scaffold { paddingValues ->
         Column(
@@ -240,7 +245,7 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
             ) {
                 items(tasks) { task ->
                     Text("• $task",
-                        style = MaterialTheme.typography.bodyMedium)
+                        style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }

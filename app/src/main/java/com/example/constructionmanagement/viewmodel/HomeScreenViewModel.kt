@@ -147,15 +147,28 @@ class HomeScreenViewModel : ViewModel() {
         val taskId = taskRef.push().key
         taskId?.let {
             taskRef.child(it).setValue(task).addOnSuccessListener {
-                _tasks.value += task
-
-                sendTaskNotification(task)
+                Log.d("HomeScreenViewModel", "Task added successfully")
             }
+                .addOnFailureListener { e ->
+                    Log.e("HomeScreenViewModel", "Failed to add task", e)
+                }
         }
     }
 
-    private fun sendTaskNotification(task: String) {
+    fun fetchTask(){
+        taskRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val taskList = mutableListOf<String>()
+                snapshot.children.forEach{ taskSnapshot ->
+                    val task = taskSnapshot.getValue(String::class.java)
+                    task?.let { taskList.add(it) }
+                }
+                _tasks.value = taskList
+            }
 
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HomeScreenViewModel", "Error fetching tasks", error.toException())
+            }
+        })
     }
-
 }
