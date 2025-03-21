@@ -171,4 +171,18 @@ class HomeScreenViewModel : ViewModel() {
             }
         })
     }
+
+    fun deleteTask(task: String) {
+        taskRef.orderByValue().equalTo(task).get().addOnSuccessListener { snapshot ->
+            snapshot.children.forEach {
+                it.ref.removeValue().addOnSuccessListener {
+                    Log.d("HomeScreenViewModel", "Task deleted successfully")
+                    _tasks.value = _tasks.value.filter { it != task }
+                }
+                    .addOnFailureListener { e ->
+                        Log.e("HomeScreenViewModel", "Failed to delete task", e)
+                    }
+            }
+        }
+    }
 }

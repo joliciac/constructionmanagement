@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
@@ -241,11 +243,30 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
                 }
             }
             LazyColumn(
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier.fillMaxHeight(),
             ) {
                 items(tasks) { task ->
-                    Text("• $task",
-                        style = MaterialTheme.typography.bodyLarge)
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "• $task",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        if (isAdmin) {
+                            IconButton(
+                                onClick = { viewModel.deleteTask(task) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete Task",
+                                    tint = Color(0xFF351D43)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
