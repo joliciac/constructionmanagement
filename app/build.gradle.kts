@@ -86,17 +86,22 @@ dependencies {
 
     //DataStore
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.firebase.auth)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
+
+    //Firebase
+    implementation(platform(libs.firebase.bom))
     implementation(libs.googleid)
+    implementation(libs.firebase.auth)
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
+
 
     //Room Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.firebase.messaging)
     ksp(libs.androidx.room.compiler)
 
 
