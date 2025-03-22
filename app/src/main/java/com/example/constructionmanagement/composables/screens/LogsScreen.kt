@@ -137,7 +137,7 @@ fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
-    FloatingActionButton(onClick = onAddClick) {
+    FloatingActionButton(onClick = onAddClick, containerColor = Color(0xFFDBCCE4)) {
         Icon(Icons.Default.Add, contentDescription = "Add Log Entry")
     }
 }
@@ -458,7 +458,7 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
-            color = Color(0xFFE3E2E6),
+            color = Color(0xFFF3E9F9),
             border = BorderStroke(width = 1.dp, color = Color.DarkGray)
         ) {
             if (logs.isEmpty()) {
