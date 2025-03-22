@@ -38,7 +38,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit
         }
         Column(
             modifier = Modifier
-                .fillMaxSize(0.8f)
+                .fillMaxHeight(0.8f)
                 .padding(25.dp),
             verticalArrangement = Arrangement.Bottom,
         ) {
@@ -47,13 +47,16 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit
                 onValueChange = { email = it },
                 label = { Text("Email") },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
-                modifier = Modifier.padding(bottom = 15.dp)
+                modifier = Modifier
+                    .padding(bottom = 15.dp)
+                    .fillMaxWidth()
             )
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -66,7 +69,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit
                     }
                 }
             }) {
-                if (isLoading) CircularProgressIndicator(color = Color.White) else Text("Login")
+                if (isLoading) CircularProgressIndicator(color = Color(0xFF351D43)) else Text("Login")
             }
             Spacer(modifier = Modifier.height(16.dp))
 
