@@ -4,6 +4,8 @@ import android.widget.CheckedTextView
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -51,32 +53,34 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
                     .padding(top = 60.dp),
                 textAlign = TextAlign.Justify
             )
-            Spacer(modifier = Modifier.height(35.dp))
+//            Spacer(modifier = Modifier.height(35.dp))
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .fillMaxHeight(0.9f)
-                    .padding(25.dp),
-                verticalArrangement = Arrangement.Bottom) {
+                    .padding(10.dp),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.Start) {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text("Email") },
                     modifier = Modifier
                         .padding(bottom = 15.dp)
+                        .fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text("Password") },
                     modifier = Modifier
-                        .padding(bottom = 15.dp),
+                        .padding(bottom = 15.dp)
+                        .fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     label = { Text("Confirm Password")},
-//                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(25.dp))
 
@@ -108,8 +112,9 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
                             onSignupSuccess()
                         }
                     }
-                }) {
-                    if (isLoading) CircularProgressIndicator(color = Color.White) else Text("Signup")
+                },
+                    colors = ButtonDefaults.buttonColors(Color(0xFFDBCCE4))) {
+                    if (isLoading) CircularProgressIndicator(color = Color(0xFF351D43)) else Text("Signup")
                 }
 
                 TextButton(onClick = onNavigateToLogin) {
