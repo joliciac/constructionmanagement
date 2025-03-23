@@ -137,8 +137,10 @@ fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
-    FloatingActionButton(onClick = onAddClick, containerColor = Color(0xFFDBCCE4)) {
-        Icon(Icons.Default.Add, contentDescription = "Add Log Entry")
+    FloatingActionButton(onClick = onAddClick, containerColor = MaterialTheme.colorScheme.secondary) {
+        Icon(
+            Icons.Default.Add,
+            contentDescription = "Add Log Entry")
     }
 }
 
@@ -254,7 +256,9 @@ fun LogEntryBottomSheet(
             onValueChange = { title.value = it},
             label = { Text("Title") },
             modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.colors(focusedContainerColor = Color(0xFFF9E3D3))
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer)
         )
         Spacer(modifier = Modifier.height(12.dp))
         TextButton(
@@ -263,9 +267,8 @@ fun LogEntryBottomSheet(
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-//                containerColor = Color(0xFFF9E3D3),
-                containerColor = Color(0xFFE3E2E6),
-                contentColor = Color(0xFF445E91)
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 5.dp
@@ -294,7 +297,8 @@ fun LogEntryBottomSheet(
             modifier = Modifier
                 .fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFF9E3D3)
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer
             ),
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -314,8 +318,8 @@ fun LogEntryBottomSheet(
                 ),
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE3E2E6),
-                    contentColor = Color(0xFF445E91)
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             ) {
                 Text(selectedArea.value.ifEmpty { "Select Site Area" })
@@ -343,7 +347,11 @@ fun LogEntryBottomSheet(
             value = description.value,
             onValueChange = { description.value = it },
             label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer
+            )
         )
         Spacer(modifier = Modifier.height(12.dp))
         Button(
@@ -352,7 +360,8 @@ fun LogEntryBottomSheet(
                 .fillMaxWidth(),
             shape = RoundedCornerShape(0.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF8A9ECB)
+                containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 4.dp
@@ -407,8 +416,8 @@ fun LogEntryBottomSheet(
                 onClick = onDismiss,
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE3E6EF),
-                    contentColor = Color(0xFF445E91)
+                    containerColor = MaterialTheme.colorScheme.outlineVariant,
+                    contentColor = MaterialTheme.colorScheme.surfaceTint
                 )
             ) {
                 Text("Cancel")
@@ -436,8 +445,8 @@ fun LogEntryBottomSheet(
                 },
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE3E6EF),
-                    contentColor = Color(0xFF445E91)
+                    containerColor = MaterialTheme.colorScheme.outlineVariant,
+                    contentColor = MaterialTheme.colorScheme.surfaceTint
                 )
             ) {
                 Text(if (selectedLog != null) "Update Log" else "Submit")
@@ -458,8 +467,8 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
-            color = Color(0xFFF3E9F9),
-            border = BorderStroke(width = 1.dp, color = Color.DarkGray)
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         ) {
             if (logs.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -482,7 +491,8 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp)
                                 .clickable { onLogClick(log) },
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text("Title: ${log.title}", style = MaterialTheme.typography.bodyMedium)

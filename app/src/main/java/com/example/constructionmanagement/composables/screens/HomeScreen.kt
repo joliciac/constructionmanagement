@@ -81,9 +81,9 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
                     valueRange = 0f..1f,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     colors = SliderDefaults.colors(
-                        thumbColor = Color(0xFF351D43),
-                        activeTrackColor = Color(0xFF351D43),
-                        inactiveTrackColor = Color(0xFFF3E9F9)
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        inactiveTrackColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 )
             }
@@ -120,7 +120,7 @@ fun ProgressBar(
                 Box(
                     modifier = Modifier
                         .size(20.dp)
-                        .background(if (isCompleted) Color.DarkGray else Color.White, shape = CircleShape)
+                        .background(if (isCompleted) MaterialTheme.colorScheme.surfaceTint else Color.White, shape = CircleShape)
                         .border(2.dp, Color.Gray, CircleShape)
                 )
 
@@ -152,7 +152,7 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiaryContainer)
     ) {
     Row(
         modifier = Modifier
@@ -221,8 +221,9 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFDBCCE4),
-                        focusedContainerColor = Color(0xFFDBCCE4))
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedContainerColor = MaterialTheme.colorScheme.onTertiary
+                    )
                 )
                 Button(
                     onClick = {
@@ -231,7 +232,7 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
                             newTask.value = ""
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF351D43)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Text("Add")
@@ -257,7 +258,7 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
                                 Icon(
                                     imageVector = Icons.Default.Delete,
                                     contentDescription = "Delete Task",
-                                    tint = Color(0xFF351D43)
+                                    tint = MaterialTheme.colorScheme.error
                                 )
                             }
                         }

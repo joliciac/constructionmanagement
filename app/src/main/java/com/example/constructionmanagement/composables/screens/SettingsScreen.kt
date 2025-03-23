@@ -203,7 +203,7 @@ fun SettingsOptionRow(
             painter = iconPainter,
             contentDescription = title,
             modifier = Modifier.size(24.dp),
-            tint = Color(0xFF351D43)
+            tint = MaterialTheme.colorScheme.surfaceTint
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
