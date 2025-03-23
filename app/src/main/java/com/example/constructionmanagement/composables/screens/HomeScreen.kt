@@ -152,10 +152,7 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF6F0F9),
-            contentColor = Color(0xFF351D43)
-        )
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
     ) {
     Row(
         modifier = Modifier
@@ -164,20 +161,20 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-            if (!isCheckedIn) {
-                RadioButton(
-                    selected = false,
-                    onClick = { viewModel.checkIn() },
-                    modifier = Modifier.padding(16.dp),
-                    enabled = true
-                )
-                Text("Check-In")
-            }
+        if (!isCheckedIn) {
+            RadioButton(
+                selected = false,
+                onClick = { viewModel.checkIn() },
+                modifier = Modifier.padding(16.dp),
+                enabled = true
+            )
+            Text("Check-In")
+        }
 
-            Text(
-                text = "%02d:%02d:%02d".format(hours, minutes, seconds),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(horizontal = 16.dp)
+        Text(
+            text = "%02d:%02d:%02d".format(hours, minutes, seconds),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             if (isCheckedIn) {
@@ -204,10 +201,8 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
             .fillMaxSize()
             .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF6F0F9),
-            contentColor = Color(0xFF351D43)
-        )
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+
     ) {
         Column(
             modifier = Modifier

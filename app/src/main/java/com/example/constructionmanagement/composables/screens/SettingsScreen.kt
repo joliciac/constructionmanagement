@@ -163,14 +163,15 @@ fun ScreenHeader(
                     painter = painter,
                     contentDescription = "$title Icon",
                     modifier = Modifier.size(80.dp),
-                    tint = Color(0xFF351D43)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
             } else if (icon != null){
                 Icon(
                     imageVector = icon,
                     contentDescription = "$title Icon",
                     modifier = Modifier.size(80.dp),
-                    tint = Color(0xFF351D43))
+                    tint = MaterialTheme.colorScheme.surfaceTint
+                )
             }
         }
         Text(
