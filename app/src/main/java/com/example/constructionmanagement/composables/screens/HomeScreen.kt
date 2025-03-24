@@ -216,9 +216,11 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
     Card(
         modifier = Modifier
             .fillMaxHeight(0.73f)
+            .fillMaxWidth()
             .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+        border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.secondary),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier
@@ -263,19 +265,29 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            "• $task",
-                            style = MaterialTheme.typography.bodyLarge)
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+                        ) {
+                            Text(
+                                "• $task",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(8.dp)
+                            )
 
-                        if (isAdmin) {
-                            IconButton(
-                                onClick = { viewModel.deleteTask(task) }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete Task",
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                            if (isAdmin) {
+                                IconButton(
+                                    onClick = { viewModel.deleteTask(task) }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete Task",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     }
@@ -293,18 +305,17 @@ fun MotivationalQuote() {
             .fillMaxWidth()
             .padding(2.dp)
             .size(40.dp),
-        border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.onTertiaryContainer),
+        border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.tertiary),
         elevation = CardDefaults.cardElevation(defaultElevation = 25.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceTint)
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(), // This ensures that the Box takes up all available space
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Text("Remember: Rome wasn't built in a day \n ⏳ ",
                 textAlign = TextAlign.Center,
                 fontStyle = FontStyle.Italic,
-//                style = MaterialTheme.typography.,
                 modifier = Modifier
                     .padding(12.dp)
             )

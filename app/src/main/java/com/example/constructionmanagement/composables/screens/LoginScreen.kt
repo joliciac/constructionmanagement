@@ -69,7 +69,7 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit
                     }
                 }
             }) {
-                if (isLoading) CircularProgressIndicator(color = Color(0xFF351D43)) else Text("Login")
+                if (isLoading) CircularProgressIndicator(color = MaterialTheme.colorScheme.surface) else Text("Login")
             }
             Spacer(modifier = Modifier.height(16.dp))
 
