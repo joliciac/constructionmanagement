@@ -1,5 +1,6 @@
 package com.example.constructionmanagement.composables.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
@@ -30,13 +33,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.constructionmanagement.R
 import com.example.constructionmanagement.viewmodel.HomeScreenViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
     val userRole by viewModel.userRole.collectAsState()
@@ -60,7 +66,12 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
                 painter = painterResource(id = R.drawable.home_work_24px)
             )
             Spacer(modifier = Modifier.height(10.dp))
-
+}
+        Column(
+            modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+        ) {
             ProgressBar(
                 progress = progress,
                 isAdmin = isAdmin,
@@ -89,9 +100,12 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
             }
             CheckInAndOut(viewModel = viewModel)
             TaskUpdates()
+            Spacer(modifier = Modifier.height(12.dp))
+            MotivationalQuote()
         }
     }
 }
+
 
 @Composable
 fun ProgressBar(
@@ -103,7 +117,9 @@ fun ProgressBar(
     val milestoneSpacing = (1f / (milestones - 1))
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 150.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Project Milestone")
@@ -152,12 +168,13 @@ fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
             .fillMaxWidth()
             .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiaryContainer)
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary)
     ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .size(55.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -198,20 +215,20 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
     val newTask = remember { mutableStateOf("") }
     Card(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxHeight(0.73f)
             .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
-
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
         ) {
-        Text(
+            Text(
             "Today's Task Summary: ",
-            modifier = Modifier.padding(5.dp)
-        )
+            modifier = Modifier.padding(5.dp),
+            style = MaterialTheme.typography.titleLarge
+            )
             if (isAdmin) {
                 TextField(
                     value = newTask.value,
@@ -243,13 +260,12 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
             ) {
                 items(tasks) { task ->
                     Row (
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             "• $task",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                            style = MaterialTheme.typography.bodyLarge)
 
                         if (isAdmin) {
                             IconButton(
@@ -265,6 +281,33 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun MotivationalQuote() {
+    Card(
+        modifier = Modifier
+            .fillMaxHeight(0.7f)
+            .fillMaxWidth()
+            .padding(2.dp)
+            .size(40.dp),
+        border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.onTertiaryContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 25.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceTint)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(), // This ensures that the Box takes up all available space
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Remember: Rome wasn't built in a day \n ⏳ ",
+                textAlign = TextAlign.Center,
+                fontStyle = FontStyle.Italic,
+//                style = MaterialTheme.typography.,
+                modifier = Modifier
+                    .padding(12.dp)
+            )
         }
     }
 }

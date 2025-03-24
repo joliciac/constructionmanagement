@@ -467,7 +467,7 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
-            color = MaterialTheme.colorScheme.tertiaryContainer,
+            color = MaterialTheme.colorScheme.tertiary,
             border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         ) {
             if (logs.isEmpty()) {
@@ -492,6 +492,7 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
                                 .padding(vertical = 6.dp)
                                 .clickable { onLogClick(log) },
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.surface),
                             colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
