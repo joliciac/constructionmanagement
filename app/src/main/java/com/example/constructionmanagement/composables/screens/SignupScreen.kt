@@ -113,7 +113,8 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
                         }
                     }
                 },
-                    colors = ButtonDefaults.buttonColors(Color(0xFFDBCCE4))) {
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surfaceTint)
+                ) {
                     if (isLoading) CircularProgressIndicator(color = MaterialTheme.colorScheme.surfaceTint) else Text("Signup")
                 }
 
