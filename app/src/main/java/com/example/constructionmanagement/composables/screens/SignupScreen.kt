@@ -1,16 +1,20 @@
 package com.example.constructionmanagement.composables.screens
 
 import android.widget.CheckedTextView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -18,12 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.constructionmanagement.R
 import com.example.constructionmanagement.viewmodel.SignupViewModel
 
 @Composable
@@ -37,36 +46,51 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
     val signupViewModel: SignupViewModel = viewModel()
     val context = LocalContext.current
 
+    val bungeeFontFamily = FontFamily(Font(R.font.bungee_shade))
+
     Scaffold() { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.43f),
+                painter = painterResource(id = R.drawable.shape2),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds
+            )
+        }
+    }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
             Text(
                 "Sign up",
-                fontSize = 38.sp,
-                modifier = Modifier
-                    .padding(top = 60.dp),
-                textAlign = TextAlign.Justify
+                fontSize = 50.sp,
+                fontFamily = bungeeFontFamily,
+                color = MaterialTheme.colorScheme.scrim
             )
-//            Spacer(modifier = Modifier.height(35.dp))
-            Column(
+            Card(
                 modifier = Modifier
-                    .fillMaxHeight(0.9f)
-                    .padding(10.dp),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.Start) {
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier
-                        .padding(bottom = 15.dp)
-                        .fillMaxWidth()
+                    .fillMaxHeight(0.65f)
+                    .padding(25.dp),
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
+                ) {
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email") },
+                        modifier = Modifier
+                            .padding(bottom = 15.dp)
+                            .fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = password,
@@ -82,7 +106,7 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
                     label = { Text("Confirm Password")},
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(25.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
                 Text("Select your role: ",
                     style = MaterialTheme.typography.bodyLarge,
@@ -97,13 +121,14 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
                         ) {
                             RadioButton(
                                 selected = selectedRole == role,
-                                onClick = { selectedRole = role}
+                                onClick = { selectedRole = role},
+                                colors = RadioButtonDefaults.colors(MaterialTheme.colorScheme.tertiary)
                             )
                             Text(role)
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(15.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Button(onClick = {
                     isLoading = true
                     signupViewModel.signup(email, password, confirmPassword, selectedRole, context) { isSuccess ->
@@ -113,18 +138,18 @@ fun SignupScreen(onSignupSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
                         }
                     }
                 },
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surfaceTint)
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
                 ) {
                     if (isLoading) CircularProgressIndicator(color = MaterialTheme.colorScheme.surfaceTint) else Text("Signup")
                 }
 
                 TextButton(onClick = onNavigateToLogin) {
                     Text("Already have an account? Login",
-                        modifier = Modifier.padding(15.dp))
+                        modifier = Modifier.padding(15.dp),
+                        color = MaterialTheme.colorScheme.tertiary)
                 }
             }
         }
-    }
 }
 
 @Preview
