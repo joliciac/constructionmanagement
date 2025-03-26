@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -157,51 +158,55 @@ fun ProgressBar(
 fun CheckInAndOut(viewModel: HomeScreenViewModel = viewModel()) {
     val elapsedTime by viewModel.elapsedTime.collectAsState()
     val checkInTime by viewModel.checkInTime.collectAsState()
+    val userRole by viewModel.userRole.collectAsState()
+    val isWorker = userRole == "Worker"
     val isCheckedIn = checkInTime != null
 
     val hours = (elapsedTime / 3600).toInt()
     val minutes = ((elapsedTime % 3600) / 60).toInt()
     val seconds = (elapsedTime % 60).toInt()
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary)
-    ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .size(55.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (!isCheckedIn) {
-            RadioButton(
-                selected = false,
-                onClick = { viewModel.checkIn() },
-                modifier = Modifier.padding(16.dp),
-                enabled = true
-            )
-            Text("Check-In")
-        }
+    if (isWorker) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .size(55.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (!isCheckedIn) {
+                    RadioButton(
+                        selected = false,
+                        onClick = { viewModel.checkIn() },
+                        modifier = Modifier.padding(16.dp),
+                        enabled = true
+                    )
+                    Text("Check-In")
+                }
 
-        Text(
-            text = "%02d:%02d:%02d".format(hours, minutes, seconds),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-            if (isCheckedIn) {
-                RadioButton(
-                    selected = true,
-                    onClick = { viewModel.checkOut() },
-                    modifier = Modifier.padding(16.dp),
-                    enabled = true
+                Text(
+                    text = "%02d:%02d:%02d".format(hours, minutes, seconds),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                Text("Check-Out")
+
+                if (isCheckedIn) {
+                    RadioButton(
+                        selected = true,
+                        onClick = { viewModel.checkOut() },
+                        modifier = Modifier.padding(16.dp),
+                        enabled = true
+                    )
+                    Text("Check-Out")
+                }
             }
         }
     }
@@ -267,7 +272,10 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
                         Text(
                             "• $task",
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .weight(1f)
+                                .wrapContentHeight()
                         )
                         if (isAdmin) {
                             IconButton(
