@@ -62,10 +62,12 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit
             )
             Card(
                 modifier = Modifier
-                    .fillMaxHeight(0.6f)
+                    .fillMaxHeight(0.67f)
                     .padding(25.dp),
                 colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
             ) {
+                Spacer(modifier = Modifier.height(65.dp))
+
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
