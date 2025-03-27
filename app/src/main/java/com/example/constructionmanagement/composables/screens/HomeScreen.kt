@@ -35,7 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -218,6 +221,9 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
     val isAdmin = userRole == "Admin"
     val tasks by viewModel.tasks.collectAsState()
     val newTask = remember { mutableStateOf("") }
+
+    val bungee = FontFamily(Font(R.font.bungee_shade))
+
     Card(
         modifier = Modifier
             .fillMaxHeight(0.73f)
@@ -232,8 +238,11 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
         ) {
             Text(
             "Today's Task Summary: ",
-            modifier = Modifier.padding(5.dp),
-            style = MaterialTheme.typography.titleLarge
+                modifier = Modifier.padding(5.dp),
+                style = MaterialTheme.typography.titleLarge,
+                fontFamily = bungee,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.ExtraBold
             )
             if (isAdmin) {
                 TextField(
@@ -297,6 +306,8 @@ fun TaskUpdates(viewModel: HomeScreenViewModel = viewModel()) {
 
 @Composable
 fun MotivationalQuote() {
+    val shipporiRegular = FontFamily(Font(R.font.shippori_mincho_regular))
+
     Card(
         modifier = Modifier
             .fillMaxHeight(0.78f)

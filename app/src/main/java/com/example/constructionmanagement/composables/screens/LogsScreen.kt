@@ -50,8 +50,14 @@ fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
     val context = LocalContext.current
     val logs by rememberUpdatedState(viewModel.logs)
     val selectedLog by viewModel.selectedLog.collectAsState()
+    val userRole by viewModel.userRole.collectAsState()
+    val isAdmin = userRole == "Admin"
 
-
+    val filteredLogs = if (isAdmin) {
+        logs
+    } else {
+        logs.filter{ it.userId == viewModel.auth.currentUser?.uid}
+    }
     if (isBottomSheetVisible.value) {
         ModalBottomSheet(
             onDismissRequest = { isBottomSheetVisible.value = false },
@@ -128,7 +134,7 @@ fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
                 icon = Icons.Default.Build, title = "Log Entries",onIconClick = { isBottomSheetVisible.value = true })
             Spacer(modifier = Modifier.height(16.dp) )
             PreviousLogs(
-                logs = logs,
+                logs = filteredLogs,
                 onLogClick = {viewModel.showLogOptions(it)}
             )
         }

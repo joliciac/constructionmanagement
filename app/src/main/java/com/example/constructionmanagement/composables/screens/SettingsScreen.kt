@@ -37,6 +37,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -166,6 +169,8 @@ fun ScreenHeader(
     icon: ImageVector? = null,
     title: String,
     onIconClick: (() -> Unit)? = null) {
+    val bungeeShade = FontFamily(Font(R.font.bungee_shade))
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(top = 20.dp)
@@ -195,7 +200,9 @@ fun ScreenHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            fontFamily = bungeeShade,
+            fontWeight = FontWeight.Thin
         )
     }
 }
