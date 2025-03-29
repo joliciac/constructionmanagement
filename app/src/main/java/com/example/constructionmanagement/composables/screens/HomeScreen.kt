@@ -55,6 +55,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
 
     LaunchedEffect(Unit) {
         viewModel.fetchTask()
+        viewModel.fetchCheckInAndOutTime()
     }
 
     Scaffold { paddingValues ->
