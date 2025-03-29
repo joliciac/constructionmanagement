@@ -506,17 +506,42 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
                                 Text("Date: ${log.date}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Area: ${log.area}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Description: ${log.description}", style = MaterialTheme.typography.bodyMedium)
-//                                log.mediaUri?.let {
-//                                    Spacer(modifier = Modifier.height(4.dp))
-//                                    Text("Media: $it", style = MaterialTheme.typography.bodySmall)
-//                                }
+                                log.mediaUri?.let { mediaUri ->
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("Media:", style = MaterialTheme.typography.bodyMedium)
+                                    if (mediaUri.contains("image")) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(mediaUri),
+                                            contentDescription = "Selected Image",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(200.dp)
+                                                .padding(top = 8.dp),
+                                            contentScale = ContentScale.Crop
+                                        )
+//                                    } else if (mediaUri.contains("video")) {
+//                                        Icon(
+//                                            imageVector = Icons.Default.AccountBox,
+//                                            contentDescription = "Video Icon",
+//                                            modifier = Modifier
+//                                                .size(48.dp)
+//                                                .padding(top = 8.dp),
+//                                            tint = MaterialTheme.colorScheme.primary
+//                                        )
+//                                    }
+                                    } else {
+                                        Text(
+                                            "Unsupported media type",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
     }
 }
 
