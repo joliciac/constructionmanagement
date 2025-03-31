@@ -4,11 +4,13 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface WeatherAPI {
-    @GET("v4/timelines")
+    @GET("onecall")
     suspend fun getWeather(
-        @Query("location") location: String,
-        @Query("fields") fields: String = "temperature,weatherCode",
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("exclude") exclude: String = "current,minutely,alerts",
         @Query("units") units: String = "metric",
-        @Query("apiKey") apiKey: String,
-        ): Weather
+        @Query("appid") apiKey: String,
+    ): WeatherResponse
 }
+

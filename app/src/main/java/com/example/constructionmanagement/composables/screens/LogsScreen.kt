@@ -18,13 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,8 +26,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.constructionmanagement.data.logs.LogEntry
@@ -50,8 +44,14 @@ fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
     val context = LocalContext.current
     val logs by rememberUpdatedState(viewModel.logs)
     val selectedLog by viewModel.selectedLog.collectAsState()
+    val userRole by viewModel.userRole.collectAsState()
+    val isAdmin = userRole == "Admin"
 
-
+    val filteredLogs = if (isAdmin) {
+        logs
+    } else {
+        logs.filter{ it.userId == viewModel.auth.currentUser?.uid}
+    }
     if (isBottomSheetVisible.value) {
         ModalBottomSheet(
             onDismissRequest = { isBottomSheetVisible.value = false },
@@ -128,7 +128,7 @@ fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
                 icon = Icons.Default.Build, title = "Log Entries",onIconClick = { isBottomSheetVisible.value = true })
             Spacer(modifier = Modifier.height(16.dp) )
             PreviousLogs(
-                logs = logs,
+                logs = filteredLogs,
                 onLogClick = {viewModel.showLogOptions(it)}
             )
         }
@@ -137,8 +137,10 @@ fun LogsScreen( viewModel: LogsScreenViewModel = viewModel()) {
 
 @Composable
 fun BottomLogFloatingActionButton(onAddClick: () -> Unit) {
-    FloatingActionButton(onClick = onAddClick, containerColor = Color(0xFFDBCCE4)) {
-        Icon(Icons.Default.Add, contentDescription = "Add Log Entry")
+    FloatingActionButton(onClick = onAddClick, containerColor = MaterialTheme.colorScheme.secondary) {
+        Icon(
+            Icons.Default.Add,
+            contentDescription = "Add Log Entry")
     }
 }
 
@@ -170,32 +172,52 @@ fun DatePickerModalInput(
     }
 }
 
-// thinking to implement an actual time picker
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun TimePicker(
-//    onConfirmTime: () -> Unit,
-//    onDismissTime: () -> Unit
-//){
-//    val currentTime = Calendar.getInstance()
-//
-//    val timePickerState = rememberTimePickerState(
-//        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-//        initialMinute = currentTime.get(Calendar.MINUTE),
-//        is24Hour = true,
-//    )
-//    Column {
-//        TimeInput(
-//            state = timePickerState,
-//        )
-//        Button(onClick = onDismissTime) {
-//            Text("Dismiss picker")
-//        }
-//        Button(onClick = onConfirmTime) {
-//            Text("Confirm selection")
-//        }
-//    }
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDialog(
+    onTimeSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = 0, // Default hour
+        initialMinute = 0, // Default minute
+        is24Hour = true
+    )
+
+    // Displaying the TimePicker in a dialog
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = MaterialTheme.shapes.medium, tonalElevation = 3.dp) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                TimePicker(state = timePickerState)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+
+                    TextButton(onClick = {
+                        val formattedTime = String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d",
+                            timePickerState.hour,
+                            timePickerState.minute
+                        )
+                        onTimeSelected(formattedTime)
+                        onDismiss() // Dismiss the dialog
+                    }) {
+                        Text("OK")
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 // Bottom Sheet Code
 @Composable
@@ -213,6 +235,7 @@ fun LogEntryBottomSheet(
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
 
     val showDatePicker = remember { mutableStateOf(false) }
+    val showTimePicker = remember { mutableStateOf(false) }
     // Dropdown state
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val siteAreas = listOf("North Wing", "South Wing", "East Wing", "West Wing")
@@ -237,6 +260,15 @@ fun LogEntryBottomSheet(
         }
     }
 
+    if (showTimePicker.value) {
+        TimePickerDialog(
+            onTimeSelected = { selectedTime ->
+                time.value = selectedTime
+            },
+            onDismiss = { showTimePicker.value = false }
+        )
+    }
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -254,7 +286,9 @@ fun LogEntryBottomSheet(
             onValueChange = { title.value = it},
             label = { Text("Title") },
             modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.colors(focusedContainerColor = Color(0xFFF9E3D3))
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer)
         )
         Spacer(modifier = Modifier.height(12.dp))
         TextButton(
@@ -263,9 +297,8 @@ fun LogEntryBottomSheet(
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-//                containerColor = Color(0xFFF9E3D3),
-                containerColor = Color(0xFFE3E2E6),
-                contentColor = Color(0xFF445E91)
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 5.dp
@@ -287,16 +320,18 @@ fun LogEntryBottomSheet(
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
-        TextField(
-            value = time.value,
-            onValueChange = { time.value = it },
-            label = { Text("Time") },
+
+        TextButton(
+            onClick = { showTimePicker.value = true },
             modifier = Modifier
-                .fillMaxWidth(),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFFF9E3D3)
-            ),
-        )
+                .fillMaxSize(),
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Text(
+                text = "Select Time: ${time.value.ifEmpty { "Not Set" }}")
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Select Site Area:",
@@ -314,8 +349,8 @@ fun LogEntryBottomSheet(
                 ),
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE3E2E6),
-                    contentColor = Color(0xFF445E91)
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             ) {
                 Text(selectedArea.value.ifEmpty { "Select Site Area" })
@@ -343,7 +378,11 @@ fun LogEntryBottomSheet(
             value = description.value,
             onValueChange = { description.value = it },
             label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer
+            )
         )
         Spacer(modifier = Modifier.height(12.dp))
         Button(
@@ -352,7 +391,8 @@ fun LogEntryBottomSheet(
                 .fillMaxWidth(),
             shape = RoundedCornerShape(0.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF8A9ECB)
+                containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 4.dp
@@ -407,8 +447,8 @@ fun LogEntryBottomSheet(
                 onClick = onDismiss,
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE3E6EF),
-                    contentColor = Color(0xFF445E91)
+                    containerColor = MaterialTheme.colorScheme.outlineVariant,
+                    contentColor = MaterialTheme.colorScheme.surfaceTint
                 )
             ) {
                 Text("Cancel")
@@ -436,8 +476,8 @@ fun LogEntryBottomSheet(
                 },
                 shape = RoundedCornerShape(6.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE3E6EF),
-                    contentColor = Color(0xFF445E91)
+                    containerColor = MaterialTheme.colorScheme.outlineVariant,
+                    contentColor = MaterialTheme.colorScheme.surfaceTint
                 )
             ) {
                 Text(if (selectedLog != null) "Update Log" else "Submit")
@@ -452,14 +492,13 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
         Text(
             text = "Previous Log Entries:",
             style = MaterialTheme.typography.titleLarge,
-//            fontFamily = FontFamily.Serif,
             modifier = Modifier.padding(bottom = 12.dp)
         )
         Surface(
             modifier = Modifier
                 .fillMaxSize(),
-            color = Color(0xFFF3E9F9),
-            border = BorderStroke(width = 1.dp, color = Color.DarkGray)
+            color = MaterialTheme.colorScheme.tertiary,
+            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
         ) {
             if (logs.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -482,24 +521,51 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp)
                                 .clickable { onLogClick(log) },
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            border = BorderStroke(2.dp, color = MaterialTheme.colorScheme.surface),
+                            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text("Title: ${log.title}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Date: ${log.date}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Area: ${log.area}", style = MaterialTheme.typography.bodyMedium)
                                 Text("Description: ${log.description}", style = MaterialTheme.typography.bodyMedium)
-//                                log.mediaUri?.let {
-//                                    Spacer(modifier = Modifier.height(4.dp))
-//                                    Text("Media: $it", style = MaterialTheme.typography.bodySmall)
-//                                }
+                                log.mediaUri?.let { mediaUri ->
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("Media:", style = MaterialTheme.typography.bodyMedium)
+                                    if (mediaUri.contains("image")) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(mediaUri),
+                                            contentDescription = "Selected Image",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(200.dp)
+                                                .padding(top = 8.dp),
+                                            contentScale = ContentScale.Crop
+                                        )
+//                                    } else if (mediaUri.contains("video")) {
+//                                        Icon(
+//                                            imageVector = Icons.Default.AccountBox,
+//                                            contentDescription = "Video Icon",
+//                                            modifier = Modifier
+//                                                .size(48.dp)
+//                                                .padding(top = 8.dp),
+//                                            tint = MaterialTheme.colorScheme.primary
+//                                        )
+//                                    }
+                                    } else {
+                                        Text(
+                                            "Unsupported media type",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
     }
 }
 

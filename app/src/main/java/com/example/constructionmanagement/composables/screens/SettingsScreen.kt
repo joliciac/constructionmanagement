@@ -32,18 +32,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.constructionmanagement.viewmodel.FCMViewModel
+import com.example.constructionmanagement.viewmodel.SettingsScreenViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -54,13 +56,20 @@ fun SettingsScreen(
     onNotificationClick: (Boolean) -> Unit,
     onLanguageChange: (String) -> Unit,
     onLogoutClick: () -> Unit,
-    viewModel: FCMViewModel = viewModel()
+    fcmViewModel: FCMViewModel = viewModel(),
+    onDeleteAccountClick: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
     var notificationsEnabled by remember { mutableStateOf(true) }
     val auth = FirebaseAuth.getInstance()
+    var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
 
     CheckNotificationPermission()
+
+    val onDeleteConfirmed = {
+        onDeleteAccountClick()
+        showDeleteConfirmationDialog = false
+    }
 
     Scaffold() { paddingValues ->
         Column(
@@ -97,10 +106,10 @@ fun SettingsScreen(
 
                             val userId = auth.currentUser?.uid
                             if (userId != null) {
-                                viewModel.updateNotification(userId, notificationsEnabled)
+                                fcmViewModel.updateNotification(userId, notificationsEnabled)
 
                                 if (notificationsEnabled) {
-                                    viewModel.storeFCMToken()
+                                    fcmViewModel.storeFCMToken()
                                 }
                             } else {
                                 Log.e("Settings", "User not authenticated")
@@ -128,6 +137,12 @@ fun SettingsScreen(
                     title = stringResource(id = R.string.logout),
                     onClick = onLogoutClick
                 )
+                Spacer(modifier = Modifier.height(40.dp))
+                SettingsOptionRow(
+                    iconPainter = painterResource(id= R.drawable.delete_forever_24dpx),
+                    title = stringResource(id = R.string.permanently_delete),
+                    onClick = { showDeleteConfirmationDialog = true }
+                )
             }
 
             if (showLanguageDialog){
@@ -136,6 +151,12 @@ fun SettingsScreen(
                     onLanguageSelected = { language -> onLanguageChange(language)
                     showLanguageDialog = false
                     }
+                )
+            }
+            if (showDeleteConfirmationDialog) {
+                PermanentlyDelete(
+                    onDismiss = { showDeleteConfirmationDialog = false },
+                    onDeleteConfirmed = onDeleteConfirmed
                 )
             }
         }
@@ -148,6 +169,8 @@ fun ScreenHeader(
     icon: ImageVector? = null,
     title: String,
     onIconClick: (() -> Unit)? = null) {
+    val bungeeShade = FontFamily(Font(R.font.bungee_shade))
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(top = 20.dp)
@@ -163,20 +186,23 @@ fun ScreenHeader(
                     painter = painter,
                     contentDescription = "$title Icon",
                     modifier = Modifier.size(80.dp),
-                    tint = Color(0xFF351D43)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
             } else if (icon != null){
                 Icon(
                     imageVector = icon,
                     contentDescription = "$title Icon",
                     modifier = Modifier.size(80.dp),
-                    tint = Color(0xFF351D43))
+                    tint = MaterialTheme.colorScheme.surfaceTint
+                )
             }
         }
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            fontFamily = bungeeShade,
+            fontWeight = FontWeight.Thin
         )
     }
 }
@@ -202,7 +228,7 @@ fun SettingsOptionRow(
             painter = iconPainter,
             contentDescription = title,
             modifier = Modifier.size(24.dp),
-            tint = Color(0xFF351D43)
+            tint = MaterialTheme.colorScheme.surfaceTint
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
@@ -270,6 +296,32 @@ fun CheckNotificationPermission() {
     }
 }
 
+@Composable
+fun PermanentlyDelete(
+    onDismiss:() -> Unit,
+    onDeleteConfirmed: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete Account Confirmation") },
+        text = {
+            Text(
+                "Are you sure you want to permanently delete your account?"
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDeleteConfirmed) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(id = R.string.cancel))
+            }
+        }
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
@@ -278,5 +330,6 @@ fun SettingsScreenPreview() {
         onThemeClick = {},
         onNotificationClick = {},
         onLanguageChange = {},
-        onLogoutClick = {})
+        onLogoutClick = {},
+        onDeleteAccountClick = {})
 }

@@ -1,11 +1,16 @@
 package com.example.constructionmanagement.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,6 +21,7 @@ import com.example.constructionmanagement.composables.screens.SettingsScreen
 import com.example.constructionmanagement.composables.screens.SignupScreen
 import com.example.constructionmanagement.composables.screens.SplashScreen
 import com.example.constructionmanagement.composables.screens.WeatherScreen
+import com.example.constructionmanagement.viewmodel.SettingsScreenViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -26,6 +32,24 @@ fun NavigationGraph(
     onThemeToggle: () -> Unit,
     isDarkTheme: Boolean
 ) {
+    val settingsViewModel: SettingsScreenViewModel = viewModel()
+//    val deletionStatus by settingsViewModel.deletionStatus.collectAsState()
+
+    val onDeleteAccountClick = {
+        settingsViewModel.deleteUserAccount(
+            onSuccess = {
+                FirebaseAuth.getInstance().signOut()
+                navController.navigate("login") {
+                    popUpTo("settings") { inclusive = true }
+                }
+            },
+            onFailure = { error ->
+                // Handle failure (e.g., show an error message)
+                Log.e("NavigationGraph", "Account deletion failed: ${error?.message}")
+            }
+        )
+    }
+
     NavHost(navController, startDestination = "splash", modifier = Modifier.padding(paddingValues)) {
         composable("splash") {
             SplashScreen(navController = navController)
@@ -75,7 +99,8 @@ fun NavigationGraph(
                     navController.navigate("login") {
                         popUpTo(0) { inclusive = true }
                     }
-                }
+                },
+                onDeleteAccountClick = onDeleteAccountClick
             )
         }
     }

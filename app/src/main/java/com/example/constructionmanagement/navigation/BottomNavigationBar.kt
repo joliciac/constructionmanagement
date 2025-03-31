@@ -3,7 +3,9 @@ package com.example.constructionmanagement.navigation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -21,8 +23,8 @@ fun BottomNavigationBar(navController: NavController) {
     )
 
     NavigationBar(
-        containerColor = Color(0xFFF3E9F9),
-        contentColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.tertiary,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 9.dp
     ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
@@ -35,10 +37,10 @@ fun BottomNavigationBar(navController: NavController) {
                     if (isSelected) {
                         Icon(item.filledIcon, contentDescription = item.title)
                     } else {
-                        Icon(item.outlinedIcon, contentDescription = item.title)
+                        Icon(item.outlinedIcon, contentDescription = item.title, tint = MaterialTheme.colorScheme.scrim)
                     }
                 },
-                label = { Text(item.title) },
+                label = { Text(item.title, color = MaterialTheme.colorScheme.scrim) },
                 selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {

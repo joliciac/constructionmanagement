@@ -25,6 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.constructionmanagement.ui.theme.PurpleGrey80
+import com.example.constructionmanagement.ui.theme.md_theme_dark_primary
+import com.example.constructionmanagement.ui.theme.md_theme_light_primary
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
@@ -58,7 +60,7 @@ fun SplashScreen(navController: NavController) {
 @Composable
 fun Splash(alpha: Float){
     Box(modifier = Modifier
-        .background(if (isSystemInDarkTheme()) Color.Black else PurpleGrey80)
+        .background(if (isSystemInDarkTheme()) md_theme_dark_primary else md_theme_light_primary)
         .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {

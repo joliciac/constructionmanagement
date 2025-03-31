@@ -29,8 +29,9 @@ class LogsScreenViewModel(application: Application) : AndroidViewModel(applicati
 
     private val logsDatabase = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("logs")
     private val userRef = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
-    private val auth = FirebaseAuth.getInstance()
-    private var userRole: String = ""
+    val auth = FirebaseAuth.getInstance()
+    private val _userRole = MutableStateFlow<String>("")
+    val userRole: StateFlow<String> get() = _userRole
 
     private val _selectedLog = MutableStateFlow<LogEntry?>(null)
     val selectedLog: StateFlow<LogEntry?> = _selectedLog
@@ -61,7 +62,7 @@ class LogsScreenViewModel(application: Application) : AndroidViewModel(applicati
         userRef.child(uid).child("role").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val role = snapshot.getValue(String::class.java) ?: "Worker"
-                userRole = role
+                _userRole.value = role
                 if (role == "admin") {
                     fetchAllLogs()
                 } else {
@@ -124,18 +125,22 @@ class LogsScreenViewModel(application: Application) : AndroidViewModel(applicati
         val uid = currentUser.uid
         val logId = logsDatabase.child(uid).push().key ?: UUID.randomUUID().toString()
 
-        val logCapture = log.copy(logId = logId, userId = uid, userRole = userRole)
+        viewModelScope.launch {
+            val role = _userRole.value
 
-        logsDatabase.child(uid).child(logId).setValue(logCapture)
-            .addOnSuccessListener {
-                saveLogToLocal(logCapture.copy(isSynced = true))
-                onResult(true)
-            }
-            .addOnFailureListener {
-                saveLogToLocal(logCapture.copy(isSynced = false))
-                Log.e("LogsViewModel", "Failed to submit log", it)
-                onResult(false)
-            }
+            val logCapture = log.copy(logId = logId, userId = uid, userRole = role)
+
+            logsDatabase.child(uid).child(logId).setValue(logCapture)
+                .addOnSuccessListener {
+                    saveLogToLocal(logCapture.copy(isSynced = true))
+                    onResult(true)
+                }
+                .addOnFailureListener {
+                    saveLogToLocal(logCapture.copy(isSynced = false))
+                    Log.e("LogsViewModel", "Failed to submit log", it)
+                    onResult(false)
+                }
+        }
     }
 
     private fun saveLogToLocal(log: LogEntry) {
