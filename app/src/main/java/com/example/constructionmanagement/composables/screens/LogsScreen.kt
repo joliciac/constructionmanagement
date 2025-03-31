@@ -18,13 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,8 +26,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.constructionmanagement.data.logs.LogEntry
@@ -178,32 +172,52 @@ fun DatePickerModalInput(
     }
 }
 
-// thinking to implement an actual time picker
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun TimePicker(
-//    onConfirmTime: () -> Unit,
-//    onDismissTime: () -> Unit
-//){
-//    val currentTime = Calendar.getInstance()
-//
-//    val timePickerState = rememberTimePickerState(
-//        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-//        initialMinute = currentTime.get(Calendar.MINUTE),
-//        is24Hour = true,
-//    )
-//    Column {
-//        TimeInput(
-//            state = timePickerState,
-//        )
-//        Button(onClick = onDismissTime) {
-//            Text("Dismiss picker")
-//        }
-//        Button(onClick = onConfirmTime) {
-//            Text("Confirm selection")
-//        }
-//    }
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDialog(
+    onTimeSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = 0, // Default hour
+        initialMinute = 0, // Default minute
+        is24Hour = true
+    )
+
+    // Displaying the TimePicker in a dialog
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = MaterialTheme.shapes.medium, tonalElevation = 3.dp) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                TimePicker(state = timePickerState)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+
+                    TextButton(onClick = {
+                        val formattedTime = String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d",
+                            timePickerState.hour,
+                            timePickerState.minute
+                        )
+                        onTimeSelected(formattedTime)
+                        onDismiss() // Dismiss the dialog
+                    }) {
+                        Text("OK")
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 // Bottom Sheet Code
 @Composable
@@ -221,6 +235,7 @@ fun LogEntryBottomSheet(
     val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
 
     val showDatePicker = remember { mutableStateOf(false) }
+    val showTimePicker = remember { mutableStateOf(false) }
     // Dropdown state
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val siteAreas = listOf("North Wing", "South Wing", "East Wing", "West Wing")
@@ -243,6 +258,15 @@ fun LogEntryBottomSheet(
             description.value = it.description
             selectedMediaUri.value = it.mediaUri?.let { uriString -> Uri.parse(uriString) }
         }
+    }
+
+    if (showTimePicker.value) {
+        TimePickerDialog(
+            onTimeSelected = { selectedTime ->
+                time.value = selectedTime
+            },
+            onDismiss = { showTimePicker.value = false }
+        )
     }
 
     Column(
@@ -296,17 +320,18 @@ fun LogEntryBottomSheet(
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
-        TextField(
-            value = time.value,
-            onValueChange = { time.value = it },
-            label = { Text("Time") },
+
+        TextButton(
+            onClick = { showTimePicker.value = true },
             modifier = Modifier
-                .fillMaxWidth(),
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                focusedContainerColor = MaterialTheme.colorScheme.tertiaryContainer
-            ),
-        )
+                .fillMaxSize(),
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Text(
+                text = "Select Time: ${time.value.ifEmpty { "Not Set" }}")
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Select Site Area:",
@@ -467,7 +492,6 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
         Text(
             text = "Previous Log Entries:",
             style = MaterialTheme.typography.titleLarge,
-//            fontFamily = FontFamily.Serif,
             modifier = Modifier.padding(bottom = 12.dp)
         )
         Surface(
