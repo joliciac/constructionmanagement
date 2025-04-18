@@ -144,12 +144,6 @@ class HomeScreenViewModel : ViewModel() {
             }
         }
 
-//        private fun calculateElapsedTime(checkInTime: Long) {
-//            val startTime = checkInTime * 1000 // Convert to milliseconds
-//            val currentTime = System.currentTimeMillis()
-//            _elapsedTime.value = (currentTime - startTime) / 1000
-//        }
-
     fun addTask(task: String) {
         val taskId = taskRef.push().key
         taskId?.let {

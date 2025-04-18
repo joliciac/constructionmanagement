@@ -12,20 +12,6 @@ class LoginViewModel : ViewModel() {
     private val database = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app/")
 
     fun login(email: String, password: String, context: Context, onResult: (Boolean, String?) -> Unit) {
-//        if (email.isNotEmpty() && password.isNotEmpty()) {
-//            firebaseAuth.signInWithEmailAndPassword(email, password)
-//                .addOnCompleteListener { task ->
-//                    if (task.isSuccessful) {
-//                        onResult(true)
-//                    } else {
-//                        Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
-//                        onResult(false)
-//                    }
-//                }
-//        } else {
-//            Toast.makeText(context, "Fields cannot be empty", Toast.LENGTH_SHORT).show()
-//            onResult(false)
-//        }
         if (email.isNotEmpty() && password.isNotEmpty()) {
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
