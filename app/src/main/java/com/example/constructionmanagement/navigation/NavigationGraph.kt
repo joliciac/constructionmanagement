@@ -6,9 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -33,7 +30,6 @@ fun NavigationGraph(
     isDarkTheme: Boolean
 ) {
     val settingsViewModel: SettingsScreenViewModel = viewModel()
-//    val deletionStatus by settingsViewModel.deletionStatus.collectAsState()
 
     val onDeleteAccountClick = {
         settingsViewModel.deleteUserAccount(
@@ -44,7 +40,6 @@ fun NavigationGraph(
                 }
             },
             onFailure = { error ->
-                // Handle failure (e.g., show an error message)
                 Log.e("NavigationGraph", "Account deletion failed: ${error?.message}")
             }
         )
@@ -87,7 +82,6 @@ fun NavigationGraph(
                 isDarkTheme = isDarkTheme,
                 onThemeClick = onThemeToggle,
                 onNotificationClick = {
-                    // Action to manage notification settings
                     println("Notification settings clicked")
                 },
                 onLanguageChange = {
