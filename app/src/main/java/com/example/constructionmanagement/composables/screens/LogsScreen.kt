@@ -9,8 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -429,7 +428,7 @@ fun LogEntryBottomSheet(
                         contentScale = ContentScale.Crop
                     )
                 } else if (uri.toString().contains("video")) {
-                    // Placeholder for Video
+                    // Placeholder for Video. Not fully implemented yet
                     Icon(
                         imageVector = Icons.Default.AccountBox,
                         contentDescription = "Video Icon",
@@ -568,36 +567,3 @@ fun PreviousLogs(logs: List<LogEntry>, onLogClick: (LogEntry) -> Unit) {
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun LogsScreenPreview(){
-//    val previewNavController = rememberNavController()
-//    val isBottomSheetVisible = remember { mutableStateOf(true) }
-//
-//    LogsScreen(navController = previewNavController, isBottomSheetVisibleOverride = isBottomSheetVisible)
-//}
-
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewLogsTopBar() {
-//    ScreenHeader(onIconClick = {}, icon = Icons.Default.Build, title = "Log Entries")
-//}
-//
-//
-//@Preview(showBackground = true, name = "Log Entry Bottom Sheet Preview")
-//@Composable
-//fun LogEntryBottomSheetPreview() {
-//    val title = remember { mutableStateOf("Cementing") }
-//    val date = remember { mutableStateOf("16/01/2025") }
-//    val time = remember { mutableStateOf("10:00 AM") }
-//    val selectedArea = remember { mutableStateOf("") }
-//    val description = remember { mutableStateOf("Work completed on the site.") }
-//    val selectedMediaUri = remember { mutableStateOf<Uri?>(null) }
-//
-//    LogEntryBottomSheet(
-//        onDismiss = { },
-//        onSubmit = { },
-//        selectedLog = TODO()
-//    )
-//}
