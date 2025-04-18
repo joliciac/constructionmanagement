@@ -1,7 +1,6 @@
 package com.example.constructionmanagement.composables.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
@@ -9,12 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
@@ -29,6 +26,10 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit
     var isLoading by remember { mutableStateOf(false) }
     val loginViewModel: LoginViewModel = viewModel()
     val context = LocalContext.current
+
+    var showForgotDialog by remember { mutableStateOf(false) }
+    var forgotEmail by remember { mutableStateOf("") }
+
 
     val bungeeFontFamily = FontFamily(Font(R.font.bungee_shade))
 
@@ -94,24 +95,71 @@ fun LoginScreen(onLoginSuccess: (String) -> Unit, onNavigateToSignup: () -> Unit
                             onLoginSuccess(role)
                         }
                     }
-                },
-//                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
-                ) {
+                }) {
                     if (isLoading) CircularProgressIndicator(color = MaterialTheme.colorScheme.surface) else Text(
                         "Login"
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
-                TextButton(onClick = { loginViewModel.showForgotPasswordDialog() }) {
+                TextButton(onClick = {
+                    forgotEmail = email // Pre-fill if user typed already
+                    showForgotDialog = true }) {
                     Text("Forgot Password?")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(onClick = onNavigateToSignup) {
                     Text("Don't have an account? Sign up")
                 }
+                if (showForgotDialog) {
+                    ForgotPasswordDialog(
+                        email = forgotEmail,
+                        onEmailChange = { forgotEmail = it },
+                        onDismiss = { showForgotDialog = false },
+                        onSendReset = {
+                            loginViewModel.forgotPassword(forgotEmail, context)
+                            showForgotDialog = false
+                        }
+                    )
+                }
             }
     }
+}
+
+@Composable
+fun ForgotPasswordDialog(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onSendReset: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Reset Password") },
+        text = {
+            Column {
+                Text("Reset link will be sent to this email.")
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = onEmailChange,
+                    label = { Text("Email") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onSendReset) {
+                Text("Send Reset Link")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 

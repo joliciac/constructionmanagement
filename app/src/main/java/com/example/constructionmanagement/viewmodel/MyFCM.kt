@@ -7,13 +7,11 @@ import com.google.firebase.messaging.RemoteMessage
 import android.util.Log
 import android.app.NotificationManager
 import androidx.core.app.NotificationCompat
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.constructionmanagement.R
-import com.google.firebase.messaging.FirebaseMessaging
 
 class MyFCM : FirebaseMessagingService() {
 

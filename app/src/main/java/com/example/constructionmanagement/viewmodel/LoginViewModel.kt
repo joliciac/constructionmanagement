@@ -9,23 +9,15 @@ import com.google.firebase.database.FirebaseDatabase
 
 class LoginViewModel : ViewModel() {
     private val firebaseAuth = FirebaseAuth.getInstance()
-    private val database = FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app/")
+    private val database =
+        FirebaseDatabase.getInstance("https://constructionproject-75d08-default-rtdb.europe-west1.firebasedatabase.app/")
 
-    fun login(email: String, password: String, context: Context, onResult: (Boolean, String?) -> Unit) {
-//        if (email.isNotEmpty() && password.isNotEmpty()) {
-//            firebaseAuth.signInWithEmailAndPassword(email, password)
-//                .addOnCompleteListener { task ->
-//                    if (task.isSuccessful) {
-//                        onResult(true)
-//                    } else {
-//                        Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
-//                        onResult(false)
-//                    }
-//                }
-//        } else {
-//            Toast.makeText(context, "Fields cannot be empty", Toast.LENGTH_SHORT).show()
-//            onResult(false)
-//        }
+    fun login(
+        email: String,
+        password: String,
+        context: Context,
+        onResult: (Boolean, String?) -> Unit
+    ) {
         if (email.isNotEmpty() && password.isNotEmpty()) {
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -36,14 +28,22 @@ class LoginViewModel : ViewModel() {
                                 .addOnSuccessListener { snapshot ->
                                     val role = snapshot.getValue(String::class.java)
                                     if (role != null) {
-                                        onResult(true,role) // Always navigate to home screen
+                                        onResult(true, role) // Always navigate to home screen
                                     } else {
-                                        Toast.makeText(context, "Login failed. No role assigned", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Login failed. No role assigned",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                         onResult(false, null)
                                     }
                                 }
                                 .addOnFailureListener {
-                                    Toast.makeText(context, "Login Failed. Could not retrieve user role", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Login Failed. Could not retrieve user role",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                     onResult(false, null)
                                 }
                         }
@@ -58,7 +58,20 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun showForgotPasswordDialog() {
-        // Implementation for a forgot password dialog
+    fun forgotPassword(email: String, context: Context) {
+        if (email.isNotEmpty()) {
+            firebaseAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(context, "Reset link sent to $email", Toast.LENGTH_LONG)
+                            .show()
+                    } else {
+                        Toast.makeText(context, "Failed to send reset link", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }
+        } else {
+            Toast.makeText(context, "Email cannot be empty", Toast.LENGTH_SHORT).show()
+        }
     }
 }
