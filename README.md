@@ -76,8 +76,20 @@ This removes the users account from the database, and they will no longer be abl
 <ul>
 <li> 1. git clone https://github.com/joliciac/constructionmanagement.git
 <li> 2. Open project in Android Studio
-<li> 3. Add your google-services.json for Firebase configuration
+<li> 3. Add your google-services.json for Firebase configuration (Steps shown below)
 <li> 4. Replace API keys where required (OpenWeatherMap API)
 <li> 5. Build and run the project on emulator or physical device
+</li></ul>
+</p>
+<p>Google-Services Json:
+<ul>
+<li> 6. Create a new project in [Firebase Console](https://console.firebase.google.com/)
+<li> 7. Enable the following services:
+    - Authentication (Email/Password)
+    - Realtime Database
+    - Storage (if applicable for media uploads)
+<li> 8. Download the `google-services.json` file from Firebase Console
+<li> 9. Place the file inside your Android project: app/google-services.json
+<li> 10. Sync the project to apply changes
 </li></ul>
 </p>
