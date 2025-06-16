@@ -13,8 +13,7 @@ class WeatherViewModel : ViewModel() {
     private val _weather = mutableStateOf<WeatherResponse?>(null)
     val weather: State<WeatherResponse?> = _weather
 
-    //hide this when repo goes public!
-    private val apiKey = "8ee1f7d8b82661b67be1bc8d24c84674"
+    private val apiKey = ""
 
     fun fetchWeather(latitude: Double, longitude: Double) {
         viewModelScope.launch {
